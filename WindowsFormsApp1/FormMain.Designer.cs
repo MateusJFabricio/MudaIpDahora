@@ -40,14 +40,15 @@
             this.txtSubNet_3 = new System.Windows.Forms.TextBox();
             this.txtSubNet_2 = new System.Windows.Forms.TextBox();
             this.txtSubNet_1 = new System.Windows.Forms.TextBox();
-            this.Coisas = new System.Windows.Forms.GroupBox();
+            this.gpConfig = new System.Windows.Forms.GroupBox();
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.btnAtualizar = new System.Windows.Forms.Button();
             this.label3 = new System.Windows.Forms.Label();
             this.notifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
             this.btnInit = new System.Windows.Forms.Button();
-            this.Coisas.SuspendLayout();
+            this.btnInfo = new System.Windows.Forms.Button();
+            this.gpConfig.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnSetIP
@@ -138,25 +139,25 @@
             this.txtSubNet_1.TabIndex = 6;
             this.txtSubNet_1.Text = "192";
             // 
-            // Coisas
+            // gpConfig
             // 
-            this.Coisas.Controls.Add(this.label2);
-            this.Coisas.Controls.Add(this.label1);
-            this.Coisas.Controls.Add(this.txtIP_1);
-            this.Coisas.Controls.Add(this.txtSubNet_4);
-            this.Coisas.Controls.Add(this.btnSetIP);
-            this.Coisas.Controls.Add(this.txtIP_2);
-            this.Coisas.Controls.Add(this.txtSubNet_3);
-            this.Coisas.Controls.Add(this.txtIP_3);
-            this.Coisas.Controls.Add(this.txtSubNet_2);
-            this.Coisas.Controls.Add(this.txtIP_4);
-            this.Coisas.Controls.Add(this.txtSubNet_1);
-            this.Coisas.Location = new System.Drawing.Point(12, 55);
-            this.Coisas.Name = "Coisas";
-            this.Coisas.Size = new System.Drawing.Size(461, 88);
-            this.Coisas.TabIndex = 10;
-            this.Coisas.TabStop = false;
-            this.Coisas.Text = "Coisas";
+            this.gpConfig.Controls.Add(this.label2);
+            this.gpConfig.Controls.Add(this.label1);
+            this.gpConfig.Controls.Add(this.txtIP_1);
+            this.gpConfig.Controls.Add(this.txtSubNet_4);
+            this.gpConfig.Controls.Add(this.btnSetIP);
+            this.gpConfig.Controls.Add(this.txtIP_2);
+            this.gpConfig.Controls.Add(this.txtSubNet_3);
+            this.gpConfig.Controls.Add(this.txtIP_3);
+            this.gpConfig.Controls.Add(this.txtSubNet_2);
+            this.gpConfig.Controls.Add(this.txtIP_4);
+            this.gpConfig.Controls.Add(this.txtSubNet_1);
+            this.gpConfig.Location = new System.Drawing.Point(12, 55);
+            this.gpConfig.Name = "gpConfig";
+            this.gpConfig.Size = new System.Drawing.Size(461, 88);
+            this.gpConfig.TabIndex = 10;
+            this.gpConfig.TabStop = false;
+            this.gpConfig.Text = "Configuração de IP:";
             // 
             // label2
             // 
@@ -191,14 +192,14 @@
             this.label3.AutoSize = true;
             this.label3.Location = new System.Drawing.Point(15, 13);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(39, 13);
+            this.label3.Size = new System.Drawing.Size(81, 13);
             this.label3.TabIndex = 13;
-            this.label3.Text = "Placas";
+            this.label3.Text = "Placas de rede:";
             // 
             // notifyIcon
             // 
             this.notifyIcon.Icon = ((System.Drawing.Icon)(resources.GetObject("notifyIcon.Icon")));
-            this.notifyIcon.Text = "notifyIcon";
+            this.notifyIcon.Text = "Muda IP Dahora =)";
             this.notifyIcon.Visible = true;
             this.notifyIcon.MouseClick += new System.Windows.Forms.MouseEventHandler(this.notifyIcon_MouseClick);
             // 
@@ -212,25 +213,35 @@
             this.btnInit.UseVisualStyleBackColor = true;
             this.btnInit.Click += new System.EventHandler(this.btnInit_Click);
             // 
+            // btnInfo
+            // 
+            this.btnInfo.Location = new System.Drawing.Point(440, 149);
+            this.btnInfo.Name = "btnInfo";
+            this.btnInfo.Size = new System.Drawing.Size(35, 23);
+            this.btnInfo.TabIndex = 15;
+            this.btnInfo.Text = "?";
+            this.btnInfo.UseVisualStyleBackColor = true;
+            this.btnInfo.Click += new System.EventHandler(this.btnInfo_Click);
+            // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(485, 177);
+            this.Controls.Add(this.btnInfo);
             this.Controls.Add(this.btnInit);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.btnAtualizar);
-            this.Controls.Add(this.Coisas);
+            this.Controls.Add(this.gpConfig);
             this.Controls.Add(this.cbPlacas);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "FormMain";
             this.Text = "Agora sim.... Bora mudar esse IP maldito";
-            this.Activated += new System.EventHandler(this.Form1_Activated);
-            this.Deactivate += new System.EventHandler(this.Form1_Deactivate);
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
-            this.Load += new System.EventHandler(this.Form1_Load);
-            this.Coisas.ResumeLayout(false);
-            this.Coisas.PerformLayout();
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormMain_FormClosing);
+            this.Load += new System.EventHandler(this.FormMain_Load);
+            this.gpConfig.ResumeLayout(false);
+            this.gpConfig.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -248,13 +259,14 @@
         private System.Windows.Forms.TextBox txtSubNet_3;
         private System.Windows.Forms.TextBox txtSubNet_2;
         private System.Windows.Forms.TextBox txtSubNet_1;
-        private System.Windows.Forms.GroupBox Coisas;
+        private System.Windows.Forms.GroupBox gpConfig;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button btnAtualizar;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.NotifyIcon notifyIcon;
         private System.Windows.Forms.Button btnInit;
+        private System.Windows.Forms.Button btnInfo;
     }
 }
 

@@ -1,4 +1,5 @@
 ﻿using IWshRuntimeLibrary;
+using MudaIpDahora;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -16,18 +17,36 @@ namespace WindowsFormsApp1
     public partial class FormMain : Form
     {
         List<Placa> placas = new List<Placa>();
+        private ContextMenu contextMenu;
+        private MenuItem menuItem;
         public FormMain()
         {
             InitializeComponent();
+            this.contextMenu = new ContextMenu();
+            this.menuItem = new MenuItem();
+            // Initialize contextMenu
+            this.contextMenu.MenuItems.AddRange(
+                        new MenuItem[] { this.menuItem });
+
+            // Initialize menuItem1
+            this.menuItem.Index = 0;
+            this.menuItem.Text = "E&xit";
+            this.menuItem.Click += new EventHandler(this.menuItem1_Click);
+            notifyIcon.ContextMenu = this.contextMenu;
         }
 
         private void btnAtualizar_Click(object sender, EventArgs e)
         {
             AtualizarPlacas();
         }
+        private void menuItem1_Click(object Sender, EventArgs e)
+        {
+            Application.Exit();
+        }
 
         private void AtualizarPlacas()
         {
+            placas.Clear();
             foreach (NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces())
             {
                 try
@@ -36,6 +55,9 @@ namespace WindowsFormsApp1
                     var ipInfo = ipProperties.UnicastAddresses.FirstOrDefault(ip => ip.Address.AddressFamily == AddressFamily.InterNetwork);
                     if (ipInfo == null)
                         continue;
+
+                    //if (ni.OperationalStatus != OperationalStatus.Up)
+                    //    continue;
 
                     var currentIPaddress = ipInfo.Address.ToString();
                     var currentSubnetMask = ipInfo.IPv4Mask.ToString();
@@ -131,34 +153,36 @@ namespace WindowsFormsApp1
             }
         }
 
-        private void Form1_Load(object sender, EventArgs e)
+        private void FormMain_Load(object sender, EventArgs e)
         {
             btnAtualizar_Click(sender, e);
             if (placas.Count > 0)
+            {
                 cbPlacas.SelectedIndex = 0;
+                gpConfig.Enabled = true;
+            }else
+                gpConfig.Enabled = false;
+
         }
 
-        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        private void FormMain_FormClosing(object sender, FormClosingEventArgs e)
         {
-            Process.GetCurrentProcess().Kill();
-        }
-
-        private void Form1_Deactivate(object sender, EventArgs e)
-        {
-            if (ShowInTaskbar)
-                this.ShowInTaskbar = false;
-        }
-
-        private void Form1_Activated(object sender, EventArgs e)
-        {
-            if (!ShowInTaskbar)
-                this.ShowInTaskbar = true;
+            Hide();
+            if (e.CloseReason == CloseReason.ApplicationExitCall)
+                Process.GetCurrentProcess().Kill();
+            else
+                e.Cancel = true;
         }
 
         private void notifyIcon_MouseClick(object sender, MouseEventArgs e)
         {
-            this.Show();
-            this.BringToFront();
+            if (e.Button == MouseButtons.Left)
+            {
+                this.Show();
+                this.BringToFront();
+            }
+                
+            
         }
 
         private void btnInit_Click(object sender, EventArgs e)
@@ -177,6 +201,10 @@ namespace WindowsFormsApp1
             shortcut.Save();
         }
 
+        private void btnInfo_Click(object sender, EventArgs e)
+        {
+            new FormInfo().ShowDialog();
+        }
     }
 
     class Placa
