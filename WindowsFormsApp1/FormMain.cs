@@ -8,6 +8,7 @@ using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
+using System.Security.Cryptography;
 using System.Windows.Forms;
 
 
@@ -49,28 +50,32 @@ namespace WindowsFormsApp1
             placas.Clear();
             foreach (NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces())
             {
+                if ((ni.NetworkInterfaceType != NetworkInterfaceType.Wireless80211 && ni.OperationalStatus != OperationalStatus.Up) ||
+                    (ni.NetworkInterfaceType != NetworkInterfaceType.Ethernet && ni.OperationalStatus != OperationalStatus.Up)) continue;
+
                 try
                 {
                     var ipProperties = ni.GetIPProperties();
-                    var ipInfo = ipProperties.UnicastAddresses.FirstOrDefault(ip => ip.Address.AddressFamily == AddressFamily.InterNetwork);
-                    if (ipInfo == null)
-                        continue;
+                    var placa = new Placa();
 
-                    //if (ni.OperationalStatus != OperationalStatus.Up)
-                    //    continue;
-
-                    var currentIPaddress = ipInfo.Address.ToString();
-                    var currentSubnetMask = ipInfo.IPv4Mask.ToString();
-
-                    var placa = new Placa
+                    if (!ipProperties.GetIPv4Properties().IsDhcpEnabled)
                     {
-                        Id = ni.Id,
-                        Nome = ni.Name,
-                        Descricao = ni.Description
-                    };
+                        var ipInfo = ipProperties.UnicastAddresses.FirstOrDefault(ip => ip.Address.AddressFamily == AddressFamily.InterNetwork);
 
-                    placa.SetIpAddr(currentIPaddress);
-                    placa.SetSubNet(currentSubnetMask);
+                        if (ipInfo == null)
+                            continue;
+
+                        var currentIPaddress = ipInfo.Address.ToString();
+                        var currentSubnetMask = ipInfo.IPv4Mask.ToString();
+
+                        placa.SetIpAddr(currentIPaddress);
+                        placa.SetSubNet(currentSubnetMask);
+                    }
+
+                    placa.Nome = ni.Name;
+                    placa.Descricao = ni.Description;
+                    placa.DhcpEnable = ipProperties.GetIPv4Properties().IsDhcpEnabled;
+
                     placas.Add(placa);
                 }
                 catch
@@ -85,23 +90,26 @@ namespace WindowsFormsApp1
             {
                 cbPlacas.Items.Add(p.Descricao);
             }
+
+            if (placas.Count <= 0)
+            {
+                gpConfig.Enabled = false;
+                cbDhcp.Enabled = false;
+            }
+            else
+            {
+                cbPlacas.SelectedIndex = 1;
+                gpConfig.Enabled = true;
+                cbDhcp.Enabled = true;
+            }
         }
 
-        public bool SetIP(string networkInterfaceName, string ipAddress, string subnetMask, string gateway = null)
+        public bool SetIP(string nomePlaca, string ipAddress, string subnetMask, string gateway = null)
         {
-            var networkInterface = NetworkInterface.GetAllNetworkInterfaces().FirstOrDefault(nw => nw.Name == networkInterfaceName);
-            var ipProperties = networkInterface.GetIPProperties();
-            var ipInfo = ipProperties.UnicastAddresses.FirstOrDefault(ip => ip.Address.AddressFamily == AddressFamily.InterNetwork);
-            var currentIPaddress = ipInfo.Address.ToString();
-            var currentSubnetMask = ipInfo.IPv4Mask.ToString();
-            var isDHCPenabled = ipProperties.GetIPv4Properties().IsDhcpEnabled;
-
-            if (!isDHCPenabled && currentIPaddress == ipAddress && currentSubnetMask == subnetMask)
-                return true;    // no change necessary
 
             var process = new Process
             {
-                StartInfo = new ProcessStartInfo("netsh", $"interface ip set address \"{networkInterfaceName}\" static {ipAddress} {subnetMask}" + (string.IsNullOrWhiteSpace(gateway) ? "" : $"{gateway} 1")) { Verb = "runas" }
+                StartInfo = new ProcessStartInfo("netsh", $"interface ip set address \"{nomePlaca}\" static {ipAddress} {subnetMask}" + (string.IsNullOrWhiteSpace(gateway) ? "" : $"{gateway} 1")) { Verb = "runas" }
             };
             process.Start();
             process.WaitForExit();
@@ -149,7 +157,11 @@ namespace WindowsFormsApp1
                     txtSubNet_2.Text = p.SubNetAddr[1];
                     txtSubNet_3.Text = p.SubNetAddr[2];
                     txtSubNet_4.Text = p.SubNetAddr[3];
-                }
+
+                    gpConfig.Enabled = !p.DhcpEnable;
+                    cbDhcp.Checked = p.DhcpEnable;
+                    cbDhcp.Refresh();
+                }                
             }
         }
 
@@ -181,8 +193,6 @@ namespace WindowsFormsApp1
                 this.Show();
                 this.BringToFront();
             }
-                
-            
         }
 
         private void btnInit_Click(object sender, EventArgs e)
@@ -205,6 +215,58 @@ namespace WindowsFormsApp1
         {
             new FormInfo().ShowDialog();
         }
+
+        private void cbDhcp_CheckedChanged(object sender, EventArgs e)
+        {
+            
+        }
+
+        private void EnableDhcp()
+        {
+            if (!placas[cbPlacas.SelectedIndex].DhcpEnable)
+            {
+                var process = new Process
+                {
+                    StartInfo = new ProcessStartInfo("netsh", "interface ip set address \"" + placas[cbPlacas.SelectedIndex].Nome + "\" source=dhcp") { Verb = "runas" }
+                };
+                process.Start();
+                process.WaitForExit();
+                var successful = process.ExitCode == 0;
+                process.Dispose();
+                gpConfig.Enabled = false;
+            }
+            else
+            {
+                txtIP_1.Clear();
+                txtIP_2.Clear();
+                txtIP_3.Clear();
+                txtIP_4.Clear();
+
+                txtSubNet_1.Text = "255";
+                txtSubNet_2.Text = "255";
+                txtSubNet_3.Text = "255";
+                txtSubNet_4.Text = "0";
+
+                gpConfig.Enabled = true;
+            }
+
+            placas[cbPlacas.SelectedIndex].DhcpEnable = !placas[cbPlacas.SelectedIndex].DhcpEnable;
+        }
+
+        private void cbDhcp_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void cbDhcp_MouseCaptureChanged(object sender, EventArgs e)
+        {
+            EnableDhcp();
+        }
+
+        private void cbPlacas_KeyDown(object sender, KeyEventArgs e)
+        {
+            e.SuppressKeyPress = true;
+        }
     }
 
     class Placa
@@ -212,30 +274,28 @@ namespace WindowsFormsApp1
         public string Id { get; set; }
         public string Nome { get; set; }
         public string Descricao { get; set; }
-        public string IP { get => ipAddr[0] + "." + ipAddr[1] + "." + ipAddr[2] + "." + ipAddr[3]; }
-        public string Subnet { get => subnet[0] + "." + subnet[1] + "." + subnet[2] + "." + subnet[3]; }
-
-        private string[] ipAddr = new string[4], subnet = new string[4];
-        public string[] IpAddr { get => ipAddr; }
-        public string[] SubNetAddr { get => subnet; }
+        public string IP { get => IpAddr[0] + "." + IpAddr[1] + "." + IpAddr[2] + "." + IpAddr[3]; }
+        public string Subnet { get => SubNetAddr[0] + "." + SubNetAddr[1] + "." + SubNetAddr[2] + "." + SubNetAddr[3]; }
+        public string[] IpAddr { get; private set; } = new string[4];
+        public string[] SubNetAddr { get; private set; } = new string[4];
+        public bool DhcpEnable { get; set; }
 
         public void SetIpAddr(string ip)
         {
-            ipAddr = new string[4];
-            ipAddr = convertIpToArray(ip);
+            IpAddr = new string[4];
+            IpAddr = convertIpToArray(ip);
         }
 
         public void SetSubNet(string ip)
         {
-            subnet = new string[4];
-            subnet = convertIpToArray(ip);
+            SubNetAddr = new string[4];
+            SubNetAddr = convertIpToArray(ip);
         }
 
         private string[] convertIpToArray(string valor)
         {
             string[] retorno = new string[4];
             int tamanho = 0;
-
             for (int i = 0; i < 4; i++)
             {
                 if (valor.Contains("."))

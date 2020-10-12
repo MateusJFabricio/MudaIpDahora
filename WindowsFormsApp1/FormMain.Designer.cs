@@ -48,6 +48,7 @@
             this.notifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
             this.btnInit = new System.Windows.Forms.Button();
             this.btnInfo = new System.Windows.Forms.Button();
+            this.cbDhcp = new System.Windows.Forms.CheckBox();
             this.gpConfig.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -74,6 +75,7 @@
             this.cbPlacas.Size = new System.Drawing.Size(378, 21);
             this.cbPlacas.TabIndex = 1;
             this.cbPlacas.SelectedIndexChanged += new System.EventHandler(this.cbPlacas_SelectedIndexChanged);
+            this.cbPlacas.KeyDown += new System.Windows.Forms.KeyEventHandler(this.cbPlacas_KeyDown);
             // 
             // txtIP_1
             // 
@@ -152,9 +154,9 @@
             this.gpConfig.Controls.Add(this.txtSubNet_2);
             this.gpConfig.Controls.Add(this.txtIP_4);
             this.gpConfig.Controls.Add(this.txtSubNet_1);
-            this.gpConfig.Location = new System.Drawing.Point(12, 55);
+            this.gpConfig.Location = new System.Drawing.Point(12, 75);
             this.gpConfig.Name = "gpConfig";
-            this.gpConfig.Size = new System.Drawing.Size(461, 88);
+            this.gpConfig.Size = new System.Drawing.Size(461, 83);
             this.gpConfig.TabIndex = 10;
             this.gpConfig.TabStop = false;
             this.gpConfig.Text = "Configuração de IP:";
@@ -205,7 +207,7 @@
             // 
             // btnInit
             // 
-            this.btnInit.Location = new System.Drawing.Point(12, 149);
+            this.btnInit.Location = new System.Drawing.Point(12, 168);
             this.btnInit.Name = "btnInit";
             this.btnInit.Size = new System.Drawing.Size(228, 23);
             this.btnInit.TabIndex = 14;
@@ -215,7 +217,7 @@
             // 
             // btnInfo
             // 
-            this.btnInfo.Location = new System.Drawing.Point(440, 149);
+            this.btnInfo.Location = new System.Drawing.Point(440, 168);
             this.btnInfo.Name = "btnInfo";
             this.btnInfo.Size = new System.Drawing.Size(35, 23);
             this.btnInfo.TabIndex = 15;
@@ -223,11 +225,26 @@
             this.btnInfo.UseVisualStyleBackColor = true;
             this.btnInfo.Click += new System.EventHandler(this.btnInfo_Click);
             // 
+            // cbDhcp
+            // 
+            this.cbDhcp.AutoSize = true;
+            this.cbDhcp.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F);
+            this.cbDhcp.Location = new System.Drawing.Point(12, 55);
+            this.cbDhcp.Name = "cbDhcp";
+            this.cbDhcp.Size = new System.Drawing.Size(65, 21);
+            this.cbDhcp.TabIndex = 16;
+            this.cbDhcp.Text = "DHCP";
+            this.cbDhcp.UseVisualStyleBackColor = true;
+            this.cbDhcp.CheckedChanged += new System.EventHandler(this.cbDhcp_CheckedChanged);
+            this.cbDhcp.Click += new System.EventHandler(this.cbDhcp_Click);
+            this.cbDhcp.MouseCaptureChanged += new System.EventHandler(this.cbDhcp_MouseCaptureChanged);
+            // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(485, 177);
+            this.ClientSize = new System.Drawing.Size(485, 200);
+            this.Controls.Add(this.cbDhcp);
             this.Controls.Add(this.btnInfo);
             this.Controls.Add(this.btnInit);
             this.Controls.Add(this.label3);
@@ -267,6 +284,7 @@
         private System.Windows.Forms.NotifyIcon notifyIcon;
         private System.Windows.Forms.Button btnInit;
         private System.Windows.Forms.Button btnInfo;
+        private System.Windows.Forms.CheckBox cbDhcp;
     }
 }
 
