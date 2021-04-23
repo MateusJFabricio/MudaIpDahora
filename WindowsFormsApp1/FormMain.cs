@@ -9,6 +9,7 @@ using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Security.Cryptography;
+using System.Text;
 using System.Windows.Forms;
 
 
@@ -18,29 +19,87 @@ namespace WindowsFormsApp1
     public partial class FormMain : Form
     {
         List<Placa> placas = new List<Placa>();
+        List<Placa> placasSalvas = new List<Placa>();
         private ContextMenu contextMenu;
         private MenuItem menuItem;
+        private IniFile iniFile;
         public FormMain()
         {
             InitializeComponent();
+            iniFile = new IniFile("ips");
+
+            CarregarListaIps();
+
+            //Cria menuItem - Menu de Contexto
             this.contextMenu = new ContextMenu();
             this.menuItem = new MenuItem();
+
             // Initialize contextMenu
             this.contextMenu.MenuItems.AddRange(
                         new MenuItem[] { this.menuItem });
 
-            // Initialize menuItem1
+            // Initialize menuItem - Menu de Contexto
             this.menuItem.Index = 0;
             this.menuItem.Text = "E&xit";
-            this.menuItem.Click += new EventHandler(this.menuItem1_Click);
+            this.menuItem.Click += new EventHandler(this.menuItem_Click);
             notifyIcon.ContextMenu = this.contextMenu;
+        }
+
+        private void CarregarListaIps()
+        {
+            placasSalvas.Clear();
+            string[] nomePlacas;
+            string streamPlacas = iniFile.Read("PLACAS_SALVAS");
+            if (streamPlacas.Length > 0)
+                nomePlacas = streamPlacas.Split(';');
+            else
+                return;
+
+            //Busca as configuracoes da placa
+            for (int i = 0; i < nomePlacas.Length - 1; i++)
+            {
+                if (nomePlacas[i].Length <= 0)
+                    continue;
+                //Pega as configuracoes
+                string p = iniFile.Read(nomePlacas[i], "PLACAS");
+                string[] confPlaca = p.Split(';');
+
+                Placa conf = new Placa();
+                conf.Id = nomePlacas[i];
+                conf.Nome = confPlaca[0];
+                conf.SetIpAddr(confPlaca[1]);
+                conf.SetSubNet(confPlaca[2]);
+                conf.DhcpEnable = confPlaca[3] == "TRUE";
+                conf.Descricao = confPlaca[4];
+
+                placasSalvas.Add(conf);
+            }
+
+            AtualizarGridPlacasSalvas();
+        }
+
+        private void AtualizarGridPlacasSalvas()
+        {
+            dgvListaIps.Rows.Clear();
+            int index = 0;
+
+            foreach (var placa in placasSalvas)
+            {
+                dgvListaIps.Rows.Add();
+                dgvListaIps.Rows[index].Cells[0].Value = placa.Descricao;
+                dgvListaIps.Rows[index].Cells[1].Value = placa.DhcpEnable;
+                dgvListaIps.Rows[index].Cells[2].Value = placa.IP;
+                dgvListaIps.Rows[index].Cells[3].Value = placa.Subnet;
+                index++;
+            }
+            dgvListaIps.Refresh();
         }
 
         private void btnAtualizar_Click(object sender, EventArgs e)
         {
             AtualizarPlacas();
         }
-        private void menuItem1_Click(object Sender, EventArgs e)
+        private void menuItem_Click(object Sender, EventArgs e)
         {
             Application.Exit();
         }
@@ -84,7 +143,14 @@ namespace WindowsFormsApp1
                 }
                 
             }
+            //Carrega os dados
+            CarregaComboBoxPlacas();
 
+
+        }
+
+        public void CarregaComboBoxPlacas()
+        {
             cbPlacas.Items.Clear();
             foreach (var p in placas)
             {
@@ -253,11 +319,6 @@ namespace WindowsFormsApp1
             placas[cbPlacas.SelectedIndex].DhcpEnable = !placas[cbPlacas.SelectedIndex].DhcpEnable;
         }
 
-        private void cbDhcp_Click(object sender, EventArgs e)
-        {
-
-        }
-
         private void cbDhcp_MouseCaptureChanged(object sender, EventArgs e)
         {
             EnableDhcp();
@@ -266,6 +327,127 @@ namespace WindowsFormsApp1
         private void cbPlacas_KeyDown(object sender, KeyEventArgs e)
         {
             e.SuppressKeyPress = true;
+        }
+
+        private void dgvListaIps_DoubleClick(object sender, EventArgs e)
+        {
+            var placa = placasSalvas[dgvListaIps.SelectedCells[0].RowIndex];
+
+            //Verifica se a placa pode ser utilizada
+            bool encontrado = false;
+            Placa placaEncontrada = null;
+            int index = 0;
+
+            foreach (var p in placas)
+            {
+                if (p.Descricao == placa.Descricao)
+                {
+                    placaEncontrada = p;
+                    encontrado = true;
+                }
+
+                if (encontrado)
+                    break;
+
+                index++;
+            }
+
+            if (!encontrado)
+            {
+                MessageBox.Show("Esta placa nao esta disponivel agora. Verifique as sua conexao");
+                return;
+            }
+
+            placaEncontrada.SetIpAddr(placa.IP);
+            placaEncontrada.SetSubNet(placa.Subnet);
+            placaEncontrada.DhcpEnable = placa.DhcpEnable;
+
+            CarregaComboBoxPlacas();
+            cbPlacas.SelectedIndex = index;
+        }
+
+        private void btnSalvarConfiguracao_Click(object sender, EventArgs e)
+        {
+            Placa p = new Placa();
+            p.Id = placas[cbPlacas.SelectedIndex].Id == null ? "0" : placas[cbPlacas.SelectedIndex].Id;
+            p.Nome = placas[cbPlacas.SelectedIndex].Nome;
+            p.Descricao = placas[cbPlacas.SelectedIndex].Descricao;
+            p.DhcpEnable = cbDhcp.Checked;
+            string ip = "0.0.0.0";
+            string subnet = "0.0.0.0";
+
+            if (!p.DhcpEnable)
+            {
+                if (!ValidaIp(txtIP_1.Text, txtIP_2.Text, txtIP_3.Text, txtIP_4.Text, out ip))
+                {
+                    MessageBox.Show("A Faixa de IP esta incorreta!");
+                    return;
+                }
+
+                if (!ValidaIp(txtSubNet_1.Text, txtSubNet_2.Text, txtSubNet_3.Text, txtSubNet_4.Text, out subnet))
+                {
+                    MessageBox.Show("A Faixa de IP da mascara esta incorreta!");
+                    return;
+                }
+            }
+            
+            p.SetIpAddr(ip);
+            p.SetSubNet(subnet);
+
+            placasSalvas.Add(p);
+
+            SalvarConfiguracao(p);
+            AtualizarGridPlacasSalvas();
+        }
+
+        private void SalvarConfiguracao(Placa placaConf)
+        {
+            string identificador = HashMd5(DateTime.Now.ToString());
+            string valor = 
+                placaConf.Nome + ";" + 
+                placaConf.IP + ";" + 
+                placaConf.Subnet + ";" + 
+                (placaConf.DhcpEnable == true ? "TRUE" : "FALSE") + ";" + 
+                placaConf.Descricao;
+
+            string valorGeral = iniFile.Read("PLACAS_SALVAS");
+            iniFile.Write("PLACAS_SALVAS", valorGeral + identificador + ";");
+            iniFile.Write(identificador, valor, "PLACAS");
+        }
+        public string HashMd5(string input)
+        {
+            MD5 md5Hash = MD5.Create();
+
+            byte[] data = md5Hash.ComputeHash(Encoding.UTF8.GetBytes(input));
+
+            StringBuilder sBuilder = new StringBuilder();
+
+            for (int i = 0; i < data.Length; i++)
+            {
+                sBuilder.Append(data[i].ToString("x2"));
+            }
+
+            return sBuilder.ToString();
+        }
+        private void ExcluirConfiguracao(string Identificador)
+        {
+            string placasSalvas = iniFile.Read("PLACAS_SALVAS");
+            placasSalvas = placasSalvas.Replace(Identificador + ";", "");
+
+            iniFile.Write("PLACAS_SALVAS", placasSalvas);
+            iniFile.DeleteKey(Identificador, "PLACAS");
+        }
+
+        private void btnExcluir_Click(object sender, EventArgs e)
+        {
+            if (placasSalvas.Count <= 0)
+                return;
+
+            var placa = placasSalvas[dgvListaIps.SelectedCells[0].RowIndex];
+
+            ExcluirConfiguracao(placa.Id);
+            placasSalvas.Remove(placa);
+            dgvListaIps.Rows.RemoveAt(dgvListaIps.SelectedCells[0].RowIndex);
         }
     }
 

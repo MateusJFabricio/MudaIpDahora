@@ -43,20 +43,31 @@
             this.gpConfig = new System.Windows.Forms.GroupBox();
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
+            this.btnSalvarConfiguracao = new System.Windows.Forms.Button();
             this.btnAtualizar = new System.Windows.Forms.Button();
             this.label3 = new System.Windows.Forms.Label();
             this.notifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
             this.btnInit = new System.Windows.Forms.Button();
             this.btnInfo = new System.Windows.Forms.Button();
             this.cbDhcp = new System.Windows.Forms.CheckBox();
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.btnExcluir = new System.Windows.Forms.Button();
+            this.label4 = new System.Windows.Forms.Label();
+            this.dgvListaIps = new System.Windows.Forms.DataGridView();
+            this.Placa = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.DHCP = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.IP = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Mascara = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.gpConfig.SuspendLayout();
+            this.panel1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvListaIps)).BeginInit();
             this.SuspendLayout();
             // 
             // btnSetIP
             // 
             this.btnSetIP.Location = new System.Drawing.Point(267, 19);
             this.btnSetIP.Name = "btnSetIP";
-            this.btnSetIP.Size = new System.Drawing.Size(188, 46);
+            this.btnSetIP.Size = new System.Drawing.Size(91, 46);
             this.btnSetIP.TabIndex = 0;
             this.btnSetIP.Text = "Set";
             this.btnSetIP.UseVisualStyleBackColor = true;
@@ -70,7 +81,7 @@
             "as",
             "das",
             "d"});
-            this.cbPlacas.Location = new System.Drawing.Point(12, 28);
+            this.cbPlacas.Location = new System.Drawing.Point(12, 23);
             this.cbPlacas.Name = "cbPlacas";
             this.cbPlacas.Size = new System.Drawing.Size(378, 21);
             this.cbPlacas.TabIndex = 1;
@@ -154,7 +165,7 @@
             this.gpConfig.Controls.Add(this.txtSubNet_2);
             this.gpConfig.Controls.Add(this.txtIP_4);
             this.gpConfig.Controls.Add(this.txtSubNet_1);
-            this.gpConfig.Location = new System.Drawing.Point(12, 75);
+            this.gpConfig.Location = new System.Drawing.Point(12, 70);
             this.gpConfig.Name = "gpConfig";
             this.gpConfig.Size = new System.Drawing.Size(461, 83);
             this.gpConfig.TabIndex = 10;
@@ -179,9 +190,19 @@
             this.label1.TabIndex = 10;
             this.label1.Text = "IP:";
             // 
+            // btnSalvarConfiguracao
+            // 
+            this.btnSalvarConfiguracao.Location = new System.Drawing.Point(349, 50);
+            this.btnSalvarConfiguracao.Name = "btnSalvarConfiguracao";
+            this.btnSalvarConfiguracao.Size = new System.Drawing.Size(123, 21);
+            this.btnSalvarConfiguracao.TabIndex = 12;
+            this.btnSalvarConfiguracao.Text = "Salvar Configuracao";
+            this.btnSalvarConfiguracao.UseVisualStyleBackColor = true;
+            this.btnSalvarConfiguracao.Click += new System.EventHandler(this.btnSalvarConfiguracao_Click);
+            // 
             // btnAtualizar
             // 
-            this.btnAtualizar.Location = new System.Drawing.Point(396, 28);
+            this.btnAtualizar.Location = new System.Drawing.Point(396, 23);
             this.btnAtualizar.Name = "btnAtualizar";
             this.btnAtualizar.Size = new System.Drawing.Size(77, 21);
             this.btnAtualizar.TabIndex = 12;
@@ -192,7 +213,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(15, 13);
+            this.label3.Location = new System.Drawing.Point(15, 8);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(81, 13);
             this.label3.TabIndex = 13;
@@ -207,7 +228,7 @@
             // 
             // btnInit
             // 
-            this.btnInit.Location = new System.Drawing.Point(12, 168);
+            this.btnInit.Location = new System.Drawing.Point(12, 163);
             this.btnInit.Name = "btnInit";
             this.btnInit.Size = new System.Drawing.Size(228, 23);
             this.btnInit.TabIndex = 14;
@@ -217,7 +238,7 @@
             // 
             // btnInfo
             // 
-            this.btnInfo.Location = new System.Drawing.Point(440, 168);
+            this.btnInfo.Location = new System.Drawing.Point(438, 163);
             this.btnInfo.Name = "btnInfo";
             this.btnInfo.Size = new System.Drawing.Size(35, 23);
             this.btnInfo.TabIndex = 15;
@@ -229,28 +250,102 @@
             // 
             this.cbDhcp.AutoSize = true;
             this.cbDhcp.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F);
-            this.cbDhcp.Location = new System.Drawing.Point(12, 55);
+            this.cbDhcp.Location = new System.Drawing.Point(12, 50);
             this.cbDhcp.Name = "cbDhcp";
             this.cbDhcp.Size = new System.Drawing.Size(65, 21);
             this.cbDhcp.TabIndex = 16;
             this.cbDhcp.Text = "DHCP";
             this.cbDhcp.UseVisualStyleBackColor = true;
             this.cbDhcp.CheckedChanged += new System.EventHandler(this.cbDhcp_CheckedChanged);
-            this.cbDhcp.Click += new System.EventHandler(this.cbDhcp_Click);
             this.cbDhcp.MouseCaptureChanged += new System.EventHandler(this.cbDhcp_MouseCaptureChanged);
+            // 
+            // panel1
+            // 
+            this.panel1.Controls.Add(this.btnSalvarConfiguracao);
+            this.panel1.Controls.Add(this.btnExcluir);
+            this.panel1.Controls.Add(this.label4);
+            this.panel1.Controls.Add(this.dgvListaIps);
+            this.panel1.Controls.Add(this.btnInfo);
+            this.panel1.Controls.Add(this.cbPlacas);
+            this.panel1.Controls.Add(this.gpConfig);
+            this.panel1.Controls.Add(this.btnAtualizar);
+            this.panel1.Controls.Add(this.cbDhcp);
+            this.panel1.Controls.Add(this.label3);
+            this.panel1.Controls.Add(this.btnInit);
+            this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panel1.Location = new System.Drawing.Point(0, 0);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(928, 194);
+            this.panel1.TabIndex = 18;
+            // 
+            // btnExcluir
+            // 
+            this.btnExcluir.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnExcluir.Location = new System.Drawing.Point(822, 3);
+            this.btnExcluir.Name = "btnExcluir";
+            this.btnExcluir.Size = new System.Drawing.Size(61, 19);
+            this.btnExcluir.TabIndex = 19;
+            this.btnExcluir.Text = "Excluir";
+            this.btnExcluir.UseVisualStyleBackColor = true;
+            this.btnExcluir.Click += new System.EventHandler(this.btnExcluir_Click);
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(476, 9);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(52, 13);
+            this.label4.TabIndex = 18;
+            this.label4.Text = "Lista IP\'s:";
+            // 
+            // dgvListaIps
+            // 
+            this.dgvListaIps.AllowUserToAddRows = false;
+            this.dgvListaIps.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvListaIps.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.Placa,
+            this.DHCP,
+            this.IP,
+            this.Mascara});
+            this.dgvListaIps.Location = new System.Drawing.Point(479, 23);
+            this.dgvListaIps.Name = "dgvListaIps";
+            this.dgvListaIps.Size = new System.Drawing.Size(445, 163);
+            this.dgvListaIps.TabIndex = 17;
+            this.dgvListaIps.DoubleClick += new System.EventHandler(this.dgvListaIps_DoubleClick);
+            // 
+            // Placa
+            // 
+            this.Placa.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
+            this.Placa.HeaderText = "Placa";
+            this.Placa.Name = "Placa";
+            this.Placa.ReadOnly = true;
+            this.Placa.Width = 150;
+            // 
+            // DHCP
+            // 
+            this.DHCP.HeaderText = "DHCP";
+            this.DHCP.Name = "DHCP";
+            this.DHCP.ReadOnly = true;
+            this.DHCP.Width = 50;
+            // 
+            // IP
+            // 
+            this.IP.HeaderText = "IP";
+            this.IP.Name = "IP";
+            this.IP.ReadOnly = true;
+            // 
+            // Mascara
+            // 
+            this.Mascara.HeaderText = "Mascara";
+            this.Mascara.Name = "Mascara";
+            this.Mascara.ReadOnly = true;
             // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(485, 200);
-            this.Controls.Add(this.cbDhcp);
-            this.Controls.Add(this.btnInfo);
-            this.Controls.Add(this.btnInit);
-            this.Controls.Add(this.label3);
-            this.Controls.Add(this.btnAtualizar);
-            this.Controls.Add(this.gpConfig);
-            this.Controls.Add(this.cbPlacas);
+            this.ClientSize = new System.Drawing.Size(928, 194);
+            this.Controls.Add(this.panel1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "FormMain";
@@ -259,8 +354,10 @@
             this.Load += new System.EventHandler(this.FormMain_Load);
             this.gpConfig.ResumeLayout(false);
             this.gpConfig.PerformLayout();
+            this.panel1.ResumeLayout(false);
+            this.panel1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvListaIps)).EndInit();
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 
@@ -285,6 +382,15 @@
         private System.Windows.Forms.Button btnInit;
         private System.Windows.Forms.Button btnInfo;
         private System.Windows.Forms.CheckBox cbDhcp;
+        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.DataGridView dgvListaIps;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Button btnSalvarConfiguracao;
+        private System.Windows.Forms.Button btnExcluir;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Placa;
+        private System.Windows.Forms.DataGridViewCheckBoxColumn DHCP;
+        private System.Windows.Forms.DataGridViewTextBoxColumn IP;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Mascara;
     }
 }
 
