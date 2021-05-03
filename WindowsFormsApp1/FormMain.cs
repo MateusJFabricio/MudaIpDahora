@@ -2,6 +2,7 @@
 using MudaIpDahora;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -64,6 +65,9 @@ namespace WindowsFormsApp1
                 string p = iniFile.Read(nomePlacas[i], "PLACAS");
                 string[] confPlaca = p.Split(';');
 
+                if (confPlaca[0] == "" || confPlaca.Length != 5)
+                    continue;
+
                 Placa conf = new Placa();
                 conf.Id = nomePlacas[i];
                 conf.Nome = confPlaca[0];
@@ -110,7 +114,8 @@ namespace WindowsFormsApp1
             foreach (NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces())
             {
                 if ((ni.NetworkInterfaceType != NetworkInterfaceType.Wireless80211 && ni.OperationalStatus != OperationalStatus.Up) ||
-                    (ni.NetworkInterfaceType != NetworkInterfaceType.Ethernet && ni.OperationalStatus != OperationalStatus.Up)) continue;
+                    (ni.NetworkInterfaceType != NetworkInterfaceType.Ethernet && ni.OperationalStatus != OperationalStatus.Up)) 
+                    continue;
 
                 try
                 {
@@ -141,12 +146,9 @@ namespace WindowsFormsApp1
                 {
 
                 }
-                
             }
             //Carrega os dados
             CarregaComboBoxPlacas();
-
-
         }
 
         public void CarregaComboBoxPlacas()
@@ -165,14 +167,13 @@ namespace WindowsFormsApp1
             else
             {
                 cbPlacas.SelectedIndex = 1;
-                gpConfig.Enabled = true;
+                gpConfig.Enabled = !placas[0].DhcpEnable;
                 cbDhcp.Enabled = true;
             }
         }
 
         public bool SetIP(string nomePlaca, string ipAddress, string subnetMask, string gateway = null)
         {
-
             var process = new Process
             {
                 StartInfo = new ProcessStartInfo("netsh", $"interface ip set address \"{nomePlaca}\" static {ipAddress} {subnetMask}" + (string.IsNullOrWhiteSpace(gateway) ? "" : $"{gateway} 1")) { Verb = "runas" }
@@ -187,18 +188,53 @@ namespace WindowsFormsApp1
         private void btnSetIP_Click(object sender, EventArgs e)
         {
             string ip, subnet;
-            if (ValidaIp(txtIP_1.Text, txtIP_2.Text, txtIP_3.Text, txtIP_4.Text, out ip))
-            {
-                if (ValidaIp(txtSubNet_1.Text, txtSubNet_2.Text, txtSubNet_3.Text, txtSubNet_4.Text, out subnet))
-                {
-                    SetIP(placas[cbPlacas.SelectedIndex].Nome, ip, subnet);
-                }
-                else
-                    MessageBox.Show("IP Invalido");
-            }
-            else
-                MessageBox.Show("IP Invalido");
 
+            try
+            {
+                //Modificacoes com DHCP
+                if (placas[cbPlacas.SelectedIndex].DhcpEnable)
+                {
+                    var process = new Process
+                    {
+                        StartInfo = new ProcessStartInfo("netsh", "interface ip set address \"" + placas[cbPlacas.SelectedIndex].Nome + "\" source=dhcp") { Verb = "runas" }
+                    };
+                    process.Start();
+                    process.WaitForExit();
+                    var successful = process.ExitCode == 0;
+                    process.Dispose();
+                    gpConfig.Enabled = false;
+                }
+                else //Modificacoes sem DHCP
+                {
+                    if (ValidaIp(txtIP_1.Text, txtIP_2.Text, txtIP_3.Text, txtIP_4.Text, out ip))
+                    {
+                        if (ValidaIp(txtSubNet_1.Text, txtSubNet_2.Text, txtSubNet_3.Text, txtSubNet_4.Text, out subnet))
+                        {
+                            SetIP(placas[cbPlacas.SelectedIndex].Nome, ip, subnet);
+                        }
+                        else
+                        {
+                            MessageBox.Show("IP Invalido");
+                            return;
+                        }
+
+                    }
+                    else
+                    {
+                        MessageBox.Show("IP Invalido");
+                        return;
+                    }
+
+                }
+            }catch(Win32Exception ex)
+            {
+                if (ex.NativeErrorCode == 1223)
+                {
+                    //terminal finalizado
+                }
+            }
+            
+            
         }
 
         private bool ValidaIp(string text1, string text2, string text3, string text4, out string valorIp)
@@ -237,10 +273,9 @@ namespace WindowsFormsApp1
             if (placas.Count > 0)
             {
                 cbPlacas.SelectedIndex = 0;
-                gpConfig.Enabled = true;
+                gpConfig.Enabled = !placas[0].DhcpEnable;
             }else
                 gpConfig.Enabled = false;
-
         }
 
         private void FormMain_FormClosing(object sender, FormClosingEventArgs e)
@@ -287,41 +322,18 @@ namespace WindowsFormsApp1
             
         }
 
-        private void EnableDhcp()
+        private void cbDhcp_MouseCaptureChanged(object sender, EventArgs e)
         {
-            if (!placas[cbPlacas.SelectedIndex].DhcpEnable)
-            {
-                var process = new Process
-                {
-                    StartInfo = new ProcessStartInfo("netsh", "interface ip set address \"" + placas[cbPlacas.SelectedIndex].Nome + "\" source=dhcp") { Verb = "runas" }
-                };
-                process.Start();
-                process.WaitForExit();
-                var successful = process.ExitCode == 0;
-                process.Dispose();
-                gpConfig.Enabled = false;
-            }
-            else
-            {
-                txtIP_1.Clear();
-                txtIP_2.Clear();
-                txtIP_3.Clear();
-                txtIP_4.Clear();
+            placas[cbPlacas.SelectedIndex].DhcpEnable = cbDhcp.Checked;
+            gpConfig.Enabled = !placas[cbPlacas.SelectedIndex].DhcpEnable;
 
+            if (gpConfig.Enabled && txtSubNet_1.Text == "" && txtSubNet_2.Text == "" && txtSubNet_3.Text == "" && txtSubNet_4.Text == "")
+            {
                 txtSubNet_1.Text = "255";
                 txtSubNet_2.Text = "255";
                 txtSubNet_3.Text = "255";
                 txtSubNet_4.Text = "0";
-
-                gpConfig.Enabled = true;
             }
-
-            placas[cbPlacas.SelectedIndex].DhcpEnable = !placas[cbPlacas.SelectedIndex].DhcpEnable;
-        }
-
-        private void cbDhcp_MouseCaptureChanged(object sender, EventArgs e)
-        {
-            EnableDhcp();
         }
 
         private void cbPlacas_KeyDown(object sender, KeyEventArgs e)

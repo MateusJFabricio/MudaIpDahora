@@ -65,9 +65,10 @@
             // 
             // btnSetIP
             // 
-            this.btnSetIP.Location = new System.Drawing.Point(267, 19);
+            this.btnSetIP.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnSetIP.Location = new System.Drawing.Point(319, 77);
             this.btnSetIP.Name = "btnSetIP";
-            this.btnSetIP.Size = new System.Drawing.Size(91, 46);
+            this.btnSetIP.Size = new System.Drawing.Size(153, 76);
             this.btnSetIP.TabIndex = 0;
             this.btnSetIP.Text = "Set";
             this.btnSetIP.UseVisualStyleBackColor = true;
@@ -158,7 +159,6 @@
             this.gpConfig.Controls.Add(this.label1);
             this.gpConfig.Controls.Add(this.txtIP_1);
             this.gpConfig.Controls.Add(this.txtSubNet_4);
-            this.gpConfig.Controls.Add(this.btnSetIP);
             this.gpConfig.Controls.Add(this.txtIP_2);
             this.gpConfig.Controls.Add(this.txtSubNet_3);
             this.gpConfig.Controls.Add(this.txtIP_3);
@@ -167,7 +167,7 @@
             this.gpConfig.Controls.Add(this.txtSubNet_1);
             this.gpConfig.Location = new System.Drawing.Point(12, 70);
             this.gpConfig.Name = "gpConfig";
-            this.gpConfig.Size = new System.Drawing.Size(461, 83);
+            this.gpConfig.Size = new System.Drawing.Size(301, 83);
             this.gpConfig.TabIndex = 10;
             this.gpConfig.TabStop = false;
             this.gpConfig.Text = "Configuração de IP:";
@@ -265,6 +265,7 @@
             this.panel1.Controls.Add(this.btnExcluir);
             this.panel1.Controls.Add(this.label4);
             this.panel1.Controls.Add(this.dgvListaIps);
+            this.panel1.Controls.Add(this.btnSetIP);
             this.panel1.Controls.Add(this.btnInfo);
             this.panel1.Controls.Add(this.cbPlacas);
             this.panel1.Controls.Add(this.gpConfig);
@@ -281,7 +282,7 @@
             // btnExcluir
             // 
             this.btnExcluir.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnExcluir.Location = new System.Drawing.Point(822, 3);
+            this.btnExcluir.Location = new System.Drawing.Point(862, 3);
             this.btnExcluir.Name = "btnExcluir";
             this.btnExcluir.Size = new System.Drawing.Size(61, 19);
             this.btnExcluir.TabIndex = 19;
