@@ -51,6 +51,7 @@
             this.btnInfo = new System.Windows.Forms.Button();
             this.cbDhcp = new System.Windows.Forms.CheckBox();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.btnAtualizacao = new System.Windows.Forms.Button();
             this.btnExcluir = new System.Windows.Forms.Button();
             this.label4 = new System.Windows.Forms.Label();
             this.dgvListaIps = new System.Windows.Forms.DataGridView();
@@ -261,6 +262,7 @@
             // 
             // panel1
             // 
+            this.panel1.Controls.Add(this.btnAtualizacao);
             this.panel1.Controls.Add(this.btnSalvarConfiguracao);
             this.panel1.Controls.Add(this.btnExcluir);
             this.panel1.Controls.Add(this.label4);
@@ -278,6 +280,16 @@
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(928, 194);
             this.panel1.TabIndex = 18;
+            // 
+            // btnAtualizacao
+            // 
+            this.btnAtualizacao.Location = new System.Drawing.Point(307, 163);
+            this.btnAtualizacao.Name = "btnAtualizacao";
+            this.btnAtualizacao.Size = new System.Drawing.Size(120, 23);
+            this.btnAtualizacao.TabIndex = 20;
+            this.btnAtualizacao.Text = "Verificar atualizacão";
+            this.btnAtualizacao.UseVisualStyleBackColor = true;
+            this.btnAtualizacao.Click += new System.EventHandler(this.btnAtualizacaoVersao);
             // 
             // btnExcluir
             // 
@@ -392,6 +404,7 @@
         private System.Windows.Forms.DataGridViewCheckBoxColumn DHCP;
         private System.Windows.Forms.DataGridViewTextBoxColumn IP;
         private System.Windows.Forms.DataGridViewTextBoxColumn Mascara;
+        private System.Windows.Forms.Button btnAtualizacao;
     }
 }
 
