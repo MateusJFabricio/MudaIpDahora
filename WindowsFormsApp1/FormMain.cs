@@ -518,6 +518,9 @@ namespace WindowsFormsApp1
                     {
                         MessageBox.Show("Você está com a ultima versão.");
                     }
+                }else
+                {
+                    MessageBox.Show("Houve um problema ao obter informações de atualizações. Pode ser que voce esteja sem internet");
                 }
             }
             catch(Exception ex)
