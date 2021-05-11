@@ -1,4 +1,4 @@
-﻿namespace MudaIpDahora
+﻿namespace MudaIpDahora.Views
 {
     partial class FormInfo
     {

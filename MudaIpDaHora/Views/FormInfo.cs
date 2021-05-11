@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 
-namespace MudaIpDahora
+namespace MudaIpDahora.Views
 {
     public partial class FormInfo : Form
     {

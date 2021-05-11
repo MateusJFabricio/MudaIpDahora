@@ -3,7 +3,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace WindowsFormsApp1
+namespace MudaIpDahora.Models
 {
     public class IniFile   // revision 11
     {

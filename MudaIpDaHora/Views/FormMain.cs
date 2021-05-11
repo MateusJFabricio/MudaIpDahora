@@ -14,8 +14,9 @@ using System.Text;
 using System.Windows.Forms;
 using RestSharp;
 using Newtonsoft.Json;
+using MudaIpDahora.Models;
 
-namespace WindowsFormsApp1
+namespace MudaIpDahora.Views
 {
 
     public partial class FormMain : Form
@@ -472,99 +473,12 @@ namespace WindowsFormsApp1
             dgvListaIps.Rows.RemoveAt(dgvListaIps.SelectedCells[0].RowIndex);
         }
 
-        private void btnAtualizacaoVersao(object sender, EventArgs e)
+        private void btnAtualizacao_Click(object sender, EventArgs e)
         {
-            int ultimaVersao = 0;
-            var client = new RestClient("https://api.github.com/repos/MateusJFabricio/MudaIpDahora/");
-            try
-            {
-                RestRequest request = new RestRequest("tags", Method.GET);
-                var response = client.Execute(request);
-                if (response.StatusCode == HttpStatusCode.OK)
-                {
-                    List<Tags> tags = JsonConvert.DeserializeObject<List<Tags>>(response.Content);
-
-                    Version version = new Version(Application.ProductVersion);
-
-                    foreach (var tag in tags)
-                    {
-                        int versao;
-                        if (tag.name.Length >= 4)
-                        {
-                            if (int.TryParse(tag.name.Substring(0, 4), out versao))
-                            {
-                                if (ultimaVersao < versao)
-                                    ultimaVersao = versao;
-                            }
-                        }
-
-                    }
-
-                    if (Convert.ToInt32(version.ToString().Replace(".", "")) < ultimaVersao)
-                    {
-                        if (MessageBox.Show("Foi identificado uma versão mais atualizada do sistema. Gostaria de fazer o download?", "Atualizacao", MessageBoxButtons.YesNo) == DialogResult.Yes)
-                        {
-                            using (var cliente = new WebClient())
-                            {
-                                nomeDownload = "MudaIpDaHora_V" + ultimaVersao.ToString() + ".exe";
-                                cliente.DownloadProgressChanged += WebClientDownloadProgressChanged;
-                                cliente.DownloadFileCompleted += WebClientDownloadCompleted;
-                                cliente.DownloadFileAsync(new Uri("https://github.com/MateusJFabricio/MudaIpDahora/releases/download/" + ultimaVersao.ToString() + "f/MudaIpDahora.exe"), nomeDownload);
-                                
-                            }
-                        }
-                    }
-                    else
-                    {
-                        MessageBox.Show("Você está com a ultima versão.");
-                    }
-                }else
-                {
-                    MessageBox.Show("Houve um problema ao obter informações de atualizações. Pode ser que voce esteja sem internet");
-                }
-            }
-            catch(Exception ex)
-            {
-                MessageBox.Show("Houve um problema: " + ex.Message);
-            }
-            
-        }
-
-        public void WebClientDownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
-        {
-
-        }
-        public void WebClientDownloadCompleted(object sender, AsyncCompletedEventArgs e)
-        {
-            try
-            {
-                string link = Environment.GetFolderPath(Environment.SpecialFolder.Startup) + Path.DirectorySeparatorChar + Application.ProductName + ".lnk";
-                var shell = new WshShell();
-                var shortcut = shell.CreateShortcut(link) as IWshShortcut;
-                shortcut.Hotkey = "Ctrl+Shift+M";
-                shortcut.TargetPath = Application.StartupPath + "\\" + nomeDownload;
-                shortcut.WorkingDirectory = Application.StartupPath;
-                shortcut.Save();
-
-                Process.Start(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location));
-                MessageBox.Show("Download finalizado");
-            }
-            catch
-            {
-
-            }
-            
+            new FormAtualizacao().ShowDialog();
         }
     }
 
-    class Tags
-    {
-        public string name { get; set; }
-        public string zipball_url { get; set; }
-        public string tarball_url { get; set; }
-        public object commit;
-        public string node_id { get; set; }
-    }
     class Placa
     {
         public string Id { get; set; }

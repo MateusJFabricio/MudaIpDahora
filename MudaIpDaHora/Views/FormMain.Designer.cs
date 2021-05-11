@@ -1,4 +1,4 @@
-﻿namespace WindowsFormsApp1
+﻿namespace MudaIpDahora.Views
 {
     partial class FormMain
     {
@@ -289,7 +289,7 @@
             this.btnAtualizacao.TabIndex = 20;
             this.btnAtualizacao.Text = "Verificar atualizacão";
             this.btnAtualizacao.UseVisualStyleBackColor = true;
-            this.btnAtualizacao.Click += new System.EventHandler(this.btnAtualizacaoVersao);
+            this.btnAtualizacao.Click += new System.EventHandler(this.btnAtualizacao_Click);
             // 
             // btnExcluir
             // 
