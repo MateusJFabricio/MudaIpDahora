@@ -332,6 +332,7 @@
             this.Placa.HeaderText = "Placa";
             this.Placa.Name = "Placa";
             this.Placa.ReadOnly = true;
+            this.Placa.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
             this.Placa.Width = 150;
             // 
             // DHCP
@@ -346,12 +347,14 @@
             this.IP.HeaderText = "IP";
             this.IP.Name = "IP";
             this.IP.ReadOnly = true;
+            this.IP.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
             // 
             // Mascara
             // 
             this.Mascara.HeaderText = "Mascara";
             this.Mascara.Name = "Mascara";
             this.Mascara.ReadOnly = true;
+            this.Mascara.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
             // 
             // FormMain
             // 
@@ -400,11 +403,11 @@
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Button btnSalvarConfiguracao;
         private System.Windows.Forms.Button btnExcluir;
+        private System.Windows.Forms.Button btnAtualizacao;
         private System.Windows.Forms.DataGridViewTextBoxColumn Placa;
         private System.Windows.Forms.DataGridViewCheckBoxColumn DHCP;
         private System.Windows.Forms.DataGridViewTextBoxColumn IP;
         private System.Windows.Forms.DataGridViewTextBoxColumn Mascara;
-        private System.Windows.Forms.Button btnAtualizacao;
     }
 }
 
