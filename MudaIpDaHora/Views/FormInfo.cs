@@ -7,8 +7,10 @@ namespace MudaIpDahora.Views
     {
         public FormInfo()
         {
+            Version version = new Version(Application.ProductVersion);
             InitializeComponent();
             rtBox.AppendText("Olá. Esta ferramenta foi desenvolvida pelo Mateus Fabricio" + Environment.NewLine);
+            rtBox.AppendText("Versão: " + version.ToString() + Environment.NewLine);
             rtBox.AppendText("Gostaria de contribuir?" + Environment.NewLine);
             rtBox.AppendText("Visite o GitHub no Link:" + Environment.NewLine);
             rtBox.AppendText("https://github.com/MateusJFabricio/MudaIpDahora");

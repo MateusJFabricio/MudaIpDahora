@@ -170,7 +170,7 @@ namespace MudaIpDahora.Views
             }
             else
             {
-                cbPlacas.SelectedIndex = 1;
+                cbPlacas.SelectedIndex = 0;
                 gpConfig.Enabled = !placas[0].DhcpEnable;
                 cbDhcp.Enabled = true;
             }
