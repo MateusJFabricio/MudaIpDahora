@@ -137,6 +137,12 @@
     <Compile Include="Models\IniFile.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Views\FormNomePlaca.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\FormNomePlaca.Designer.cs">
+      <DependentUpon>FormNomePlaca.cs</DependentUpon>
+    </Compile>
     <EmbeddedResource Include="Views\FormAtualizacao.resx">
       <DependentUpon>FormAtualizacao.cs</DependentUpon>
     </EmbeddedResource>
@@ -156,6 +162,9 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <EmbeddedResource Include="Views\FormNomePlaca.resx">
+      <DependentUpon>FormNomePlaca.cs</DependentUpon>
+    </EmbeddedResource>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

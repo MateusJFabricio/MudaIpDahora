@@ -76,6 +76,7 @@ namespace MudaIpDahora.Views
             this.Controls.Add(this.progressBar);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
             this.Name = "FormAtualizacao";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Atualizacao";
             this.ResumeLayout(false);
             this.PerformLayout();

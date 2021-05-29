@@ -31,8 +31,8 @@ namespace MudaIpDahora.Views
         public FormMain()
         {
             InitializeComponent();
-            iniFile = new IniFile("ips");
-
+            iniFile = new IniFile("ips_v2");
+            ConfiguraForm();
             CarregarListaIps();
 
             //Cria menuItem - Menu de Contexto
@@ -49,7 +49,12 @@ namespace MudaIpDahora.Views
             this.menuItem.Click += new EventHandler(this.menuItem_Click);
             notifyIcon.ContextMenu = this.contextMenu;
         }
+        private void ConfiguraForm()
+        {
+            bool recolhido = iniFile.Read("MODO_RECOLHIDO") == "TRUE";
 
+            Recolher(recolhido);
+        }
         private void CarregarListaIps()
         {
             placasSalvas.Clear();
@@ -69,7 +74,7 @@ namespace MudaIpDahora.Views
                 string p = iniFile.Read(nomePlacas[i], "PLACAS");
                 string[] confPlaca = p.Split(';');
 
-                if (confPlaca[0] == "" || confPlaca.Length != 5)
+                if (confPlaca[0] == "" || confPlaca.Length != 6)
                     continue;
 
                 Placa conf = new Placa();
@@ -79,6 +84,11 @@ namespace MudaIpDahora.Views
                 conf.SetSubNet(confPlaca[2]);
                 conf.DhcpEnable = confPlaca[3] == "TRUE";
                 conf.Descricao = confPlaca[4];
+
+                if (confPlaca.Length >= 6)
+                    conf.Apelido = confPlaca[5];
+                else
+                    conf.Apelido = "Sem nome";
 
                 placasSalvas.Add(conf);
             }
@@ -94,10 +104,11 @@ namespace MudaIpDahora.Views
             foreach (var placa in placasSalvas)
             {
                 dgvListaIps.Rows.Add();
-                dgvListaIps.Rows[index].Cells[0].Value = placa.Descricao;
-                dgvListaIps.Rows[index].Cells[1].Value = placa.DhcpEnable;
-                dgvListaIps.Rows[index].Cells[2].Value = placa.IP;
-                dgvListaIps.Rows[index].Cells[3].Value = placa.Subnet;
+                dgvListaIps.Rows[index].Cells[0].Value = placa.Apelido;
+                dgvListaIps.Rows[index].Cells[1].Value = placa.Descricao;
+                dgvListaIps.Rows[index].Cells[2].Value = placa.DhcpEnable;
+                dgvListaIps.Rows[index].Cells[3].Value = placa.IP;
+                dgvListaIps.Rows[index].Cells[4].Value = placa.Subnet;
                 index++;
             }
             dgvListaIps.Refresh();
@@ -391,11 +402,18 @@ namespace MudaIpDahora.Views
 
         private void btnSalvarConfiguracao_Click(object sender, EventArgs e)
         {
+            string indicePk = iniFile.Read("INDICE_PK");
+            int iPk = Convert.ToInt32(indicePk == "" ? "0" : indicePk);
+
+            FormNomePlaca formNomePlaca = new FormNomePlaca();
+            formNomePlaca.ShowDialog();
+
             Placa p = new Placa();
-            p.Id = placas[cbPlacas.SelectedIndex].Id == null ? "0" : placas[cbPlacas.SelectedIndex].Id;
+            p.Id = iPk.ToString();
             p.Nome = placas[cbPlacas.SelectedIndex].Nome;
             p.Descricao = placas[cbPlacas.SelectedIndex].Descricao;
             p.DhcpEnable = cbDhcp.Checked;
+            p.Apelido = formNomePlaca.DialogResult == DialogResult.OK ? formNomePlaca.NomePlaca : "Sem nome";
             string ip = "0.0.0.0";
             string subnet = "0.0.0.0";
 
@@ -425,17 +443,22 @@ namespace MudaIpDahora.Views
 
         private void SalvarConfiguracao(Placa placaConf)
         {
-            string identificador = HashMd5(DateTime.Now.ToString());
+            string indicePk = iniFile.Read("INDICE_PK");
+            int iPk = Convert.ToInt32(indicePk == "" ? "0" : indicePk);
+
+            string identificador = iPk.ToString();
             string valor = 
                 placaConf.Nome + ";" + 
                 placaConf.IP + ";" + 
                 placaConf.Subnet + ";" + 
                 (placaConf.DhcpEnable == true ? "TRUE" : "FALSE") + ";" + 
-                placaConf.Descricao;
+                placaConf.Descricao + ";" +
+                placaConf.Apelido;
 
             string valorGeral = iniFile.Read("PLACAS_SALVAS");
             iniFile.Write("PLACAS_SALVAS", valorGeral + identificador + ";");
             iniFile.Write(identificador, valor, "PLACAS");
+            iniFile.Write("INDICE_PK", (iPk + 1).ToString());
         }
         public string HashMd5(string input)
         {
@@ -454,10 +477,23 @@ namespace MudaIpDahora.Views
         }
         private void ExcluirConfiguracao(string Identificador)
         {
-            string placasSalvas = iniFile.Read("PLACAS_SALVAS");
-            placasSalvas = placasSalvas.Replace(Identificador + ";", "");
+            string idPlacas = "";
+            string streamPlacas = iniFile.Read("PLACAS_SALVAS");
+            if (streamPlacas.Length > 0)
+            {
+                foreach (var item in streamPlacas.Split(';'))
+                {
+                    if (item == "")
+                        continue;
 
-            iniFile.Write("PLACAS_SALVAS", placasSalvas);
+                    if (item != Identificador)
+                    {
+                        idPlacas += item + ";";
+                    }
+                } 
+            }
+
+            iniFile.Write("PLACAS_SALVAS", idPlacas);
             iniFile.DeleteKey(Identificador, "PLACAS");
         }
 
@@ -477,6 +513,29 @@ namespace MudaIpDahora.Views
         {
             new FormAtualizacao().ShowDialog();
         }
+
+        private void btnRecolher_Click(object sender, EventArgs e)
+        {
+            bool recolher = Size.Width == 1062;
+            iniFile.Write("MODO_RECOLHIDO", recolher ? "TRUE" : "FALSE");
+            Recolher(Size.Width == 1062);
+        }
+
+        private void Recolher(bool recolher)
+        {
+            if (recolher)
+            {
+                Size = new System.Drawing.Size(516, Size.Height);
+                btnRecolher.Text = ">";
+            }
+            else
+            {
+                Size = new System.Drawing.Size(1062, Size.Height);
+                btnRecolher.Text = "<";
+            }
+
+            Refresh();
+        }
     }
 
     class Placa
@@ -484,6 +543,7 @@ namespace MudaIpDahora.Views
         public string Id { get; set; }
         public string Nome { get; set; }
         public string Descricao { get; set; }
+        public string Apelido { get; set; }
         public string IP { get => IpAddr[0] + "." + IpAddr[1] + "." + IpAddr[2] + "." + IpAddr[3]; }
         public string Subnet { get => SubNetAddr[0] + "." + SubNetAddr[1] + "." + SubNetAddr[2] + "." + SubNetAddr[3]; }
         public string[] IpAddr { get; private set; } = new string[4];
