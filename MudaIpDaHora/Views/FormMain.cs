@@ -15,6 +15,7 @@ using System.Windows.Forms;
 using RestSharp;
 using Newtonsoft.Json;
 using MudaIpDahora.Models;
+using MudaIpDahora.Controller.Profinet;
 
 namespace MudaIpDahora.Views
 {
@@ -536,7 +537,55 @@ namespace MudaIpDahora.Views
 
             Refresh();
         }
+
+        private void btnBuscaProfinet_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("Em breve mais um recurso será adicionado no MudaIpDaHora. Aguarde! =)");
+            // //get network
+            // Network conn = OpenEthernetNetwork();
+            // if (conn == null) return;
+            //
+            // //Send Search
+            // conn.EthernetTransport.SendIdentifyBroadcast();
+        }
+
+       //private Network OpenEthernetNetwork()
+       //{
+       //    m_networks.Add(pcap_device.Name, new Network(new ProfinetEthernetTransport(pcap_device), null));
+       //    //get mac
+       //    if (m_DeviceTree.SelectedNode == null || m_DeviceTree.SelectedNode.Level < 1)
+       //    {
+       //        Trace.TraceWarning("No network selected");
+       //        return null;
+       //    }
+       //    string key;
+       //    if (m_DeviceTree.SelectedNode.Level == 1)
+       //        key = m_DeviceTree.SelectedNode.Name;
+       //    else
+       //        key = m_DeviceTree.SelectedNode.Parent.Name;
+       //
+       //    if (!m_networks[key].EthernetTransport.IsOpen)
+       //    {
+       //        m_networks[key].EthernetTransport.Open();
+       //        m_networks[key].EthernetTransport.OnDcpMessage += new ProfinetEthernetTransport.OnDcpMessageHandler(EthernetTransport_OnDcpMessage);
+       //        m_networks[key].EthernetTransport.OnAcyclicMessage += new ProfinetEthernetTransport.OnAcyclicMessageHandler(EthernetTransport_OnAcyclicMessage);
+       //        m_networks[key].EthernetTransport.OnCyclicMessage += new ProfinetEthernetTransport.OnCyclicMessageHandler(EthernetTransport_OnCyclicMessage);
+       //    }
+       //    return m_networks[key];
+       //}
     }
+
+    //class Network
+    //{
+    //    public ProfinetEthernetTransport EthernetTransport;
+    //    public ProfinetUdpTransport UdpTransport;
+    //    public Dictionary<string, Dictionary<DCP.BlockOptions, object>> Devices = new Dictionary<string, Dictionary<DCP.BlockOptions, object>>();
+    //    public Network(ProfinetEthernetTransport eth_transport, ProfinetUdpTransport udp_transport)
+    //    {
+    //        EthernetTransport = eth_transport;
+    //        UdpTransport = udp_transport;
+    //    }
+    //}
 
     class Placa
     {

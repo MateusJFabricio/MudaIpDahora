@@ -51,6 +51,8 @@
             this.btnInfo = new System.Windows.Forms.Button();
             this.cbDhcp = new System.Windows.Forms.CheckBox();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.btnBuscaProfinet = new System.Windows.Forms.Button();
+            this.btnRecolher = new System.Windows.Forms.Button();
             this.btnAtualizacao = new System.Windows.Forms.Button();
             this.btnExcluir = new System.Windows.Forms.Button();
             this.label4 = new System.Windows.Forms.Label();
@@ -60,7 +62,6 @@
             this.DHCP = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.IP = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Mascara = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.btnRecolher = new System.Windows.Forms.Button();
             this.gpConfig.SuspendLayout();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvListaIps)).BeginInit();
@@ -264,6 +265,7 @@
             // 
             // panel1
             // 
+            this.panel1.Controls.Add(this.btnBuscaProfinet);
             this.panel1.Controls.Add(this.btnRecolher);
             this.panel1.Controls.Add(this.btnAtualizacao);
             this.panel1.Controls.Add(this.btnSalvarConfiguracao);
@@ -283,6 +285,27 @@
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(1046, 194);
             this.panel1.TabIndex = 18;
+            // 
+            // btnBuscaProfinet
+            // 
+            this.btnBuscaProfinet.BackgroundImage = global::MudaIpDahora.Properties.Resources.magnifier;
+            this.btnBuscaProfinet.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
+            this.btnBuscaProfinet.Location = new System.Drawing.Point(319, 50);
+            this.btnBuscaProfinet.Name = "btnBuscaProfinet";
+            this.btnBuscaProfinet.Size = new System.Drawing.Size(24, 23);
+            this.btnBuscaProfinet.TabIndex = 22;
+            this.btnBuscaProfinet.UseVisualStyleBackColor = true;
+            this.btnBuscaProfinet.Click += new System.EventHandler(this.btnBuscaProfinet_Click);
+            // 
+            // btnRecolher
+            // 
+            this.btnRecolher.Location = new System.Drawing.Point(478, 21);
+            this.btnRecolher.Name = "btnRecolher";
+            this.btnRecolher.Size = new System.Drawing.Size(16, 165);
+            this.btnRecolher.TabIndex = 21;
+            this.btnRecolher.Text = "<";
+            this.btnRecolher.UseVisualStyleBackColor = true;
+            this.btnRecolher.Click += new System.EventHandler(this.btnRecolher_Click);
             // 
             // btnAtualizacao
             // 
@@ -367,16 +390,6 @@
             this.Mascara.ReadOnly = true;
             this.Mascara.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
             // 
-            // btnRecolher
-            // 
-            this.btnRecolher.Location = new System.Drawing.Point(478, 21);
-            this.btnRecolher.Name = "btnRecolher";
-            this.btnRecolher.Size = new System.Drawing.Size(16, 165);
-            this.btnRecolher.TabIndex = 21;
-            this.btnRecolher.Text = "<";
-            this.btnRecolher.UseVisualStyleBackColor = true;
-            this.btnRecolher.Click += new System.EventHandler(this.btnRecolher_Click);
-            // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -432,6 +445,7 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn IP;
         private System.Windows.Forms.DataGridViewTextBoxColumn Mascara;
         private System.Windows.Forms.Button btnRecolher;
+        private System.Windows.Forms.Button btnBuscaProfinet;
     }
 }
 
