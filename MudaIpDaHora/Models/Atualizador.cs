@@ -67,12 +67,12 @@ namespace MudaIpDahora.Models
         public bool DownloadComponentes()
         {
             Thread.Sleep(1000);
-            using (var cliente = new WebClient())
+            foreach (var asset in Release.Assets)
             {
-                nomeDownload = "MudaIpDaHora_V" + Release.tag_name.ToString() + ".exe";
-
-                foreach (var asset in Release.Assets)
+                using (var cliente = new WebClient())
                 {
+                    nomeDownload = "MudaIpDaHora_V" + Release.tag_name.ToString() + ".exe";
+
                     if (asset.name.Contains(".exe"))
                         cliente.DownloadFileAsync(new Uri(asset.browser_download_url), nomeDownload);
                     else
@@ -80,9 +80,10 @@ namespace MudaIpDahora.Models
                         if (!System.IO.File.Exists(asset.name))
                             cliente.DownloadFileAsync(new Uri(asset.browser_download_url), asset.name);
                     }
-                        
+
                 }
             }
+
             return true;
         }
 
