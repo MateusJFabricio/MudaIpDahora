@@ -28,11 +28,34 @@ namespace MudaIpDahora.Views
         private MenuItem menuItem;
         private IniFile iniFile;
         private string nomeDownload;
+        private bool dhcpComponente = false;
+        public bool DhcpComponente
+        {
+            get
+            {
+                return dhcpComponente;
+            }
+            set
+            {
+                dhcpComponente = value;
+                if (value)
+                {
+                    btnDHCP_Toogle.Image = Properties.Resources.baseline_check_box_black_18dp;
+                }
+                else
+                {
+                    btnDHCP_Toogle.Image = Properties.Resources.baseline_check_box_outline_blank_black_18dp;
+                }
+            }
+        }
+        public int WidthExpanded { get; set; }
 
         public FormMain()
         {
             InitializeComponent();
             iniFile = new IniFile("ips_v2");
+
+            WidthExpanded = Width;
             ConfiguraForm();
             CarregarListaIps();
 
@@ -178,13 +201,15 @@ namespace MudaIpDahora.Views
             if (placas.Count <= 0)
             {
                 gpConfig.Enabled = false;
-                cbDhcp.Enabled = false;
+                btnDHCP_Toogle.Enabled = false;
             }
             else
             {
+                gpConfig.Enabled = true;
                 cbPlacas.SelectedIndex = 0;
-                gpConfig.Enabled = !placas[0].DhcpEnable;
-                cbDhcp.Enabled = true;
+                pnlIpAndMask.Enabled = !placas[0].DhcpEnable;
+                btnDHCP_Toogle.Enabled = true;
+                DhcpComponente = placas[0].DhcpEnable;
             }
         }
 
@@ -218,7 +243,7 @@ namespace MudaIpDahora.Views
                     process.WaitForExit();
                     var successful = process.ExitCode == 0;
                     process.Dispose();
-                    gpConfig.Enabled = false;
+                    pnlIpAndMask.Enabled = false;
                 }
                 else //Modificacoes sem DHCP
                 {
@@ -276,20 +301,18 @@ namespace MudaIpDahora.Views
                     txtSubNet_3.Text = p.SubNetAddr[2];
                     txtSubNet_4.Text = p.SubNetAddr[3];
 
-                    gpConfig.Enabled = !p.DhcpEnable;
-                    cbDhcp.Checked = p.DhcpEnable;
-                    cbDhcp.Refresh();
+                    pnlIpAndMask.Enabled = !p.DhcpEnable;
+                    DhcpComponente = p.DhcpEnable;
                 }                
             }
         }
-
         private void FormMain_Load(object sender, EventArgs e)
         {
             btnAtualizar_Click(sender, e);
             if (placas.Count > 0)
             {
                 cbPlacas.SelectedIndex = 0;
-                gpConfig.Enabled = !placas[0].DhcpEnable;
+                pnlIpAndMask.Enabled = !placas[0].DhcpEnable;
             }else
                 gpConfig.Enabled = false;
         }
@@ -300,7 +323,10 @@ namespace MudaIpDahora.Views
             if (e.CloseReason == CloseReason.ApplicationExitCall)
                 Process.GetCurrentProcess().Kill();
             else
+            {
                 e.Cancel = true;
+                notifyIcon.ShowBalloonTip(2000, "Muda Ip DaHora", "Há uma nova versão disponivel. Atualize já o software =)", ToolTipIcon.Info);
+            }
         }
 
         private void notifyIcon_MouseClick(object sender, MouseEventArgs e)
@@ -322,34 +348,18 @@ namespace MudaIpDahora.Views
             string link = Environment.GetFolderPath(Environment.SpecialFolder.Startup) + Path.DirectorySeparatorChar + Application.ProductName + ".lnk";
             var shell = new WshShell();
             var shortcut = shell.CreateShortcut(link) as IWshShortcut;
-            shortcut.Hotkey = "Ctrl+Shift+M";
             shortcut.TargetPath = Application.ExecutablePath;
             shortcut.WorkingDirectory = Application.StartupPath;
             shortcut.Save();
+
+            MessageBox.Show("Atalho criado. " + Environment.NewLine + 
+                "Agora este software iniciará com o Windows." + Environment.NewLine +
+                "Use o Painel de Controle para remover esta configuracao");
         }
 
         private void btnInfo_Click(object sender, EventArgs e)
         {
             new FormInfo().ShowDialog();
-        }
-
-        private void cbDhcp_CheckedChanged(object sender, EventArgs e)
-        {
-            
-        }
-
-        private void cbDhcp_MouseCaptureChanged(object sender, EventArgs e)
-        {
-            placas[cbPlacas.SelectedIndex].DhcpEnable = cbDhcp.Checked;
-            gpConfig.Enabled = !placas[cbPlacas.SelectedIndex].DhcpEnable;
-
-            if (gpConfig.Enabled && txtSubNet_1.Text == "" && txtSubNet_2.Text == "" && txtSubNet_3.Text == "" && txtSubNet_4.Text == "")
-            {
-                txtSubNet_1.Text = "255";
-                txtSubNet_2.Text = "255";
-                txtSubNet_3.Text = "255";
-                txtSubNet_4.Text = "0";
-            }
         }
 
         private void cbPlacas_KeyDown(object sender, KeyEventArgs e)
@@ -413,7 +423,7 @@ namespace MudaIpDahora.Views
             p.Id = iPk.ToString();
             p.Nome = placas[cbPlacas.SelectedIndex].Nome;
             p.Descricao = placas[cbPlacas.SelectedIndex].Descricao;
-            p.DhcpEnable = cbDhcp.Checked;
+            p.DhcpEnable = DhcpComponente;
             p.Apelido = formNomePlaca.DialogResult == DialogResult.OK ? formNomePlaca.NomePlaca : "Sem nome";
             string ip = "0.0.0.0";
             string subnet = "0.0.0.0";
@@ -512,26 +522,36 @@ namespace MudaIpDahora.Views
 
         private void btnAtualizacao_Click(object sender, EventArgs e)
         {
-            new FormAtualizacao().ShowDialog();
+
+            var form = new FormAtualizacao(false);
+            form.ShowDialog();
+            form.AtualizacaoProcess.Join();
+            if (form.ShortcutPath != "")
+            {
+                Process.Start(form.ShortcutPath);
+                menuItem_Click(null, null);
+            }
         }
 
         private void btnRecolher_Click(object sender, EventArgs e)
         {
-            bool recolher = Size.Width == 1062;
+            bool recolher = Size.Width == WidthExpanded;
             iniFile.Write("MODO_RECOLHIDO", recolher ? "TRUE" : "FALSE");
-            Recolher(Size.Width == 1062);
+            Recolher(recolher);
         }
 
         private void Recolher(bool recolher)
         {
             if (recolher)
             {
-                Size = new System.Drawing.Size(516, Size.Height);
+                pnlListas.Visible = false;
+                Size = new System.Drawing.Size(WidthExpanded - pnlListas.Width, Size.Height);
                 btnRecolher.Text = ">";
             }
             else
             {
-                Size = new System.Drawing.Size(1062, Size.Height);
+                pnlListas.Visible = true;
+                Size = new System.Drawing.Size(WidthExpanded, Size.Height);
                 btnRecolher.Text = "<";
             }
 
@@ -549,30 +569,168 @@ namespace MudaIpDahora.Views
             // conn.EthernetTransport.SendIdentifyBroadcast();
         }
 
-       //private Network OpenEthernetNetwork()
-       //{
-       //    m_networks.Add(pcap_device.Name, new Network(new ProfinetEthernetTransport(pcap_device), null));
-       //    //get mac
-       //    if (m_DeviceTree.SelectedNode == null || m_DeviceTree.SelectedNode.Level < 1)
-       //    {
-       //        Trace.TraceWarning("No network selected");
-       //        return null;
-       //    }
-       //    string key;
-       //    if (m_DeviceTree.SelectedNode.Level == 1)
-       //        key = m_DeviceTree.SelectedNode.Name;
-       //    else
-       //        key = m_DeviceTree.SelectedNode.Parent.Name;
-       //
-       //    if (!m_networks[key].EthernetTransport.IsOpen)
-       //    {
-       //        m_networks[key].EthernetTransport.Open();
-       //        m_networks[key].EthernetTransport.OnDcpMessage += new ProfinetEthernetTransport.OnDcpMessageHandler(EthernetTransport_OnDcpMessage);
-       //        m_networks[key].EthernetTransport.OnAcyclicMessage += new ProfinetEthernetTransport.OnAcyclicMessageHandler(EthernetTransport_OnAcyclicMessage);
-       //        m_networks[key].EthernetTransport.OnCyclicMessage += new ProfinetEthernetTransport.OnCyclicMessageHandler(EthernetTransport_OnCyclicMessage);
-       //    }
-       //    return m_networks[key];
-       //}
+        private void btnDHCP_Toogle_Click(object sender, EventArgs e)
+        {
+            DhcpComponente = !DhcpComponente;
+
+            placas[cbPlacas.SelectedIndex].DhcpEnable = DhcpComponente;
+            pnlIpAndMask.Enabled = !placas[cbPlacas.SelectedIndex].DhcpEnable;
+
+            if (pnlIpAndMask.Enabled && txtSubNet_1.Text == "" && txtSubNet_2.Text == "" && txtSubNet_3.Text == "" && txtSubNet_4.Text == "")
+            {
+                txtSubNet_1.Text = "255";
+                txtSubNet_2.Text = "255";
+                txtSubNet_3.Text = "255";
+                txtSubNet_4.Text = "0";
+            }
+        }
+
+        private void lblMascara_Click(object sender, EventArgs e)
+        {
+            txtSubNet_1.Text = "255";
+            txtSubNet_2.Text = "255";
+            txtSubNet_3.Text = "255";
+            txtSubNet_4.Text = "0";
+        }
+
+        private void lblIP_Click(object sender, EventArgs e)
+        {
+            txtIP_1.Text = "192";
+            txtIP_2.Text = "168";
+            txtIP_3.Text = "0";
+            txtIP_4.Text = "99";
+        }
+
+        private void gerenciadorDePlacasDeRedeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Process.Start("ncpa.cpl");
+        }
+
+        private void txtIP_1_TextChanged(object sender, EventArgs e)
+        {
+            if (txtIP_1.TextLength == 3)
+                txtIP_2.Focus();
+        }
+
+        private void txtIP_1_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            var txt = sender as TextBox;
+            if (txt.TextLength >= 3)
+                txt.Text = "";
+        }
+
+        private void txtIP_2_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            var txt = sender as TextBox;
+            if (txt.TextLength >= 3)
+                txt.Text = "";
+        }
+
+        private void txtIP_3_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            var txt = sender as TextBox;
+            if (txt.TextLength >= 3)
+                txt.Text = "";
+        }
+
+        private void txtIP_4_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            var txt = sender as TextBox;
+            if (txt.TextLength >= 3)
+                txt.Text = "";
+        }
+
+        private void txtSubNet_1_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            var txt = sender as TextBox;
+            if (txt.TextLength >= 3)
+                txt.Text = "";
+        }
+
+        private void txtSubNet_2_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            var txt = sender as TextBox;
+            if (txt.TextLength >= 3)
+                txt.Text = "";
+        }
+
+        private void txtSubNet_3_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            var txt = sender as TextBox;
+            if (txt.TextLength >= 3)
+                txt.Text = "";
+        }
+
+        private void txtSubNet_4_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            var txt = sender as TextBox;
+            if (txt.TextLength >= 3)
+                txt.Text = "";
+        }
+
+        private void txtIP_2_TextChanged(object sender, EventArgs e)
+        {
+            if (txtIP_2.TextLength == 3)
+                txtIP_3.Focus();
+        }
+
+        private void txtIP_3_TextChanged(object sender, EventArgs e)
+        {
+            if (txtIP_3.TextLength == 3)
+                txtIP_4.Focus();
+        }
+
+        private void txtIP_4_TextChanged(object sender, EventArgs e)
+        {
+            if (txtIP_4.TextLength == 3)
+                btnSetIP.Focus();
+        }
+
+        private void menuStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+
+        }
+
+        private void testeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            notifyIcon.ShowBalloonTip(2000, "Muda Ip DaHora", "Há uma nova versão disponivel. Atualize já o software =)", ToolTipIcon.Info);
+        }
+
+        private void notifyIcon_BalloonTipClicked(object sender, EventArgs e)
+        {
+            var form = new FormAtualizacao(true);
+            form.AtualizacaoProcess.Join();
+            if (form.ShortcutPath != "")
+            {
+                Process.Start(form.ShortcutPath);
+                menuItem_Click(null, null);
+            }
+        }
+
+        //private Network OpenEthernetNetwork()
+        //{
+        //    m_networks.Add(pcap_device.Name, new Network(new ProfinetEthernetTransport(pcap_device), null));
+        //    //get mac
+        //    if (m_DeviceTree.SelectedNode == null || m_DeviceTree.SelectedNode.Level < 1)
+        //    {
+        //        Trace.TraceWarning("No network selected");
+        //        return null;
+        //    }
+        //    string key;
+        //    if (m_DeviceTree.SelectedNode.Level == 1)
+        //        key = m_DeviceTree.SelectedNode.Name;
+        //    else
+        //        key = m_DeviceTree.SelectedNode.Parent.Name;
+        //
+        //    if (!m_networks[key].EthernetTransport.IsOpen)
+        //    {
+        //        m_networks[key].EthernetTransport.Open();
+        //        m_networks[key].EthernetTransport.OnDcpMessage += new ProfinetEthernetTransport.OnDcpMessageHandler(EthernetTransport_OnDcpMessage);
+        //        m_networks[key].EthernetTransport.OnAcyclicMessage += new ProfinetEthernetTransport.OnAcyclicMessageHandler(EthernetTransport_OnAcyclicMessage);
+        //        m_networks[key].EthernetTransport.OnCyclicMessage += new ProfinetEthernetTransport.OnCyclicMessageHandler(EthernetTransport_OnCyclicMessage);
+        //    }
+        //    return m_networks[key];
+        //}
     }
 
     //class Network

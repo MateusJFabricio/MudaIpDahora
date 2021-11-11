@@ -205,6 +205,19 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="iconeNetwork.ico" />
+    <None Include="Resources\baseline_miscellaneous_services_black_18dp.png" />
+    <None Include="Resources\baseline_contact_support_black_18dp.png" />
+    <None Include="Resources\baseline_cloud_sync_black_18dp.png" />
+    <None Include="Resources\baseline_cloud_queue_black_18dp.png" />
+    <None Include="Resources\baseline_autorenew_black_18dp.png" />
+    <None Include="Resources\baseline_delete_outline_black_18dp.png" />
+    <None Include="Resources\baseline_delete_black_18dp.png" />
+    <None Include="Resources\baseline_save_black_18dp.png" />
+    <None Include="Resources\baseline_local_cafe_black_18dp.png" />
+    <None Include="Resources\baseline_check_box_outline_blank_black_18dp.png" />
+    <None Include="Resources\baseline_check_box_black_18dp.png" />
+    <None Include="Resources\baseline_cable_black_18dp.png" />
+    <None Include="Resources\baseline_shortcut_black_24dp.png" />
     <None Include="Resources\magnifier.png" />
     <None Include="Resources\Lupa.bmp" />
   </ItemGroup>

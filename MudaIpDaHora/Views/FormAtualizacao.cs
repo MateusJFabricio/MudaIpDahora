@@ -15,11 +15,16 @@ namespace MudaIpDahora.Views
         private bool atalhoCriado;
         private bool concluidoComErro = false;
         private bool concluido = false;
+        public bool Silent { get; set; }
+        public string ShortcutPath { get; set; } = "";
+        public Thread AtualizacaoProcess { get; set; }
 
-        public FormAtualizacao()
+        public FormAtualizacao(bool silent)
         {
+            Silent = silent;
             InitializeComponent();
-            new Thread(Atualizar).Start();
+            AtualizacaoProcess = new Thread(Atualizar);
+            AtualizacaoProcess.Start();
         }
         private void Atualizar()
         {
@@ -34,11 +39,14 @@ namespace MudaIpDahora.Views
                     {
                         downloadConcluido = atualizador.DownloadComponentes();
                         if (downloadConcluido)
-                            atalhoCriado = atualizador.CriarAtalho();
+                        {
+                            atalhoCriado = atualizador.CriarAtalho(Silent);
+                            ShortcutPath = atualizador.ShortcutPath;
+                        }
                     }
                     else
                     {
-                        MessageBox.Show("Não foi encontrado uma nova vesao", "Mensagem", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        MessageBox.Show("Não foi encontrado uma nova versão", "Mensagem", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         concluido = true;
                     }
                         
@@ -71,6 +79,10 @@ namespace MudaIpDahora.Views
                     lblAtividade.Text = "Concluido";
 
                 timer.Enabled = false;
+                if (Silent)
+                {
+                    Close();
+                }
                 return;
             }
             

@@ -14,6 +14,7 @@ namespace MudaIpDahora.Models
 {
     public class Atualizador
     {
+        public string ShortcutPath { get; set; } = "";
         private string nomeDownload;
         public Release Release = new Release();
         public bool LocalizarUltimaRelease()
@@ -87,17 +88,19 @@ namespace MudaIpDahora.Models
             return true;
         }
 
-        public bool CriarAtalho()
+        public bool CriarAtalho(bool silent)
         {
             Thread.Sleep(1000);
             string link = Environment.GetFolderPath(Environment.SpecialFolder.Startup) + Path.DirectorySeparatorChar + Application.ProductName + ".lnk";
+            ShortcutPath = link;
             var shell = new WshShell();
             var shortcut = shell.CreateShortcut(link) as IWshShortcut;
             shortcut.TargetPath = Application.StartupPath + "\\" + nomeDownload;
             shortcut.WorkingDirectory = Application.StartupPath;
             shortcut.Save();
 
-            Process.Start(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location));
+            if (!silent)
+                Process.Start(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location));
 
             return true;
         }
