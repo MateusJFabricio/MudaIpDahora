@@ -1,5 +1,4 @@
 ﻿using IWshRuntimeLibrary;
-using MudaIpDahora;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -7,15 +6,13 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.NetworkInformation;
-using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Text;
 using System.Windows.Forms;
-using RestSharp;
-using Newtonsoft.Json;
 using MudaIpDahora.Models;
-using MudaIpDahora.Controller.Profinet;
+using System.Net.NetworkInformation;
+using System.Net.Sockets;
+using SharpPcap.WinPcap;
 
 namespace MudaIpDahora.Views
 {
@@ -150,42 +147,41 @@ namespace MudaIpDahora.Views
         private void AtualizarPlacas()
         {
             placas.Clear();
-            foreach (NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces())
+
+            var adaptersService = new ProfinetTools.Logic.Services.AdaptersService();
+            var adapters = adaptersService
+                .GetAdapters()
+                .Cast<WinPcapDevice>()
+                .Where((x) => x.Interface.Addresses.Count > 0)
+                .ToList();
+            
+
+            foreach (var adapter in adapters)
             {
-                if ((ni.NetworkInterfaceType != NetworkInterfaceType.Wireless80211 && ni.OperationalStatus != OperationalStatus.Up) ||
-                    (ni.NetworkInterfaceType != NetworkInterfaceType.Ethernet && ni.OperationalStatus != OperationalStatus.Up)) 
-                    continue;
+                var placaRede = NetworkInterface.GetAllNetworkInterfaces().Where((x) => x.GetPhysicalAddress().ToString() == adapter.Interface.MacAddress.ToString()).FirstOrDefault();
 
-                try
+                var placa = new Placa();
+                placa.Nome = adapter.Interface.FriendlyName;
+                placa.Descricao = adapter.Interface.Description;
+                placa.DhcpEnable = placaRede.GetIPProperties().GetIPv4Properties().IsDhcpEnabled;
+
+                if (!placa.DhcpEnable)
                 {
-                    var ipProperties = ni.GetIPProperties();
-                    var placa = new Placa();
+                    var ipInfo = placaRede.GetIPProperties().UnicastAddresses.FirstOrDefault(ip => ip.Address.AddressFamily == AddressFamily.InterNetwork);
 
-                    if (!ipProperties.GetIPv4Properties().IsDhcpEnabled)
-                    {
-                        var ipInfo = ipProperties.UnicastAddresses.FirstOrDefault(ip => ip.Address.AddressFamily == AddressFamily.InterNetwork);
+                    if (ipInfo == null)
+                        continue;
 
-                        if (ipInfo == null)
-                            continue;
+                    var currentIPaddress = ipInfo.Address.ToString();
+                    var currentSubnetMask = ipInfo.IPv4Mask.ToString();
 
-                        var currentIPaddress = ipInfo.Address.ToString();
-                        var currentSubnetMask = ipInfo.IPv4Mask.ToString();
-
-                        placa.SetIpAddr(currentIPaddress);
-                        placa.SetSubNet(currentSubnetMask);
-                    }
-
-                    placa.Nome = ni.Name;
-                    placa.Descricao = ni.Description;
-                    placa.DhcpEnable = ipProperties.GetIPv4Properties().IsDhcpEnabled;
-
-                    placas.Add(placa);
+                    placa.SetIpAddr(currentIPaddress);
+                    placa.SetSubNet(currentSubnetMask);
                 }
-                catch
-                {
-
-                }
+                placa.WinPCapAdapter = adapter;
+                placas.Add(placa);
             }
+
             //Carrega os dados
             CarregaComboBoxPlacas();
         }
@@ -267,15 +263,16 @@ namespace MudaIpDahora.Views
                     }
 
                 }
-            }catch(Win32Exception ex)
+            }
+            catch (Win32Exception ex)
             {
                 if (ex.NativeErrorCode == 1223)
                 {
                     //terminal finalizado
                 }
             }
-            
-            
+
+
         }
 
         private bool ValidaIp(string text1, string text2, string text3, string text4, out string valorIp)
@@ -303,7 +300,9 @@ namespace MudaIpDahora.Views
 
                     pnlIpAndMask.Enabled = !p.DhcpEnable;
                     DhcpComponente = p.DhcpEnable;
-                }                
+                }
+
+                btnRefreshProfinetDevice_Click(btnRefreshProfinetDevice, new EventArgs());
             }
         }
         private void FormMain_Load(object sender, EventArgs e)
@@ -313,7 +312,8 @@ namespace MudaIpDahora.Views
             {
                 cbPlacas.SelectedIndex = 0;
                 pnlIpAndMask.Enabled = !placas[0].DhcpEnable;
-            }else
+            }
+            else
                 gpConfig.Enabled = false;
         }
 
@@ -325,7 +325,10 @@ namespace MudaIpDahora.Views
             else
             {
                 e.Cancel = true;
-                notifyIcon.ShowBalloonTip(2000, "Muda Ip DaHora", "Há uma nova versão disponivel. Atualize já o software =)", ToolTipIcon.Info);
+                var form = new FormAtualizacao(true);
+                form.AtualizacaoProcess.Join();
+                if (form.ShortcutPath != "")
+                    notifyIcon.ShowBalloonTip(2000, "Muda Ip DaHora", "Há uma nova versão disponivel. Atualize já o software =)", ToolTipIcon.Info);
             }
         }
 
@@ -352,7 +355,7 @@ namespace MudaIpDahora.Views
             shortcut.WorkingDirectory = Application.StartupPath;
             shortcut.Save();
 
-            MessageBox.Show("Atalho criado. " + Environment.NewLine + 
+            MessageBox.Show("Atalho criado. " + Environment.NewLine +
                 "Agora este software iniciará com o Windows." + Environment.NewLine +
                 "Use o Painel de Controle para remover esta configuracao");
         }
@@ -404,11 +407,12 @@ namespace MudaIpDahora.Views
 
                 CarregaComboBoxPlacas();
                 cbPlacas.SelectedIndex = index;
-            }catch
+            }
+            catch
             {
 
             }
-            
+
         }
 
         private void btnSalvarConfiguracao_Click(object sender, EventArgs e)
@@ -442,7 +446,7 @@ namespace MudaIpDahora.Views
                     return;
                 }
             }
-            
+
             p.SetIpAddr(ip);
             p.SetSubNet(subnet);
 
@@ -450,6 +454,7 @@ namespace MudaIpDahora.Views
 
             SalvarConfiguracao(p);
             AtualizarGridPlacasSalvas();
+            Recolher(false);
         }
 
         private void SalvarConfiguracao(Placa placaConf)
@@ -458,11 +463,11 @@ namespace MudaIpDahora.Views
             int iPk = Convert.ToInt32(indicePk == "" ? "0" : indicePk);
 
             string identificador = iPk.ToString();
-            string valor = 
-                placaConf.Nome + ";" + 
-                placaConf.IP + ";" + 
-                placaConf.Subnet + ";" + 
-                (placaConf.DhcpEnable == true ? "TRUE" : "FALSE") + ";" + 
+            string valor =
+                placaConf.Nome + ";" +
+                placaConf.IP + ";" +
+                placaConf.Subnet + ";" +
+                (placaConf.DhcpEnable == true ? "TRUE" : "FALSE") + ";" +
                 placaConf.Descricao + ";" +
                 placaConf.Apelido;
 
@@ -501,7 +506,7 @@ namespace MudaIpDahora.Views
                     {
                         idPlacas += item + ";";
                     }
-                } 
+                }
             }
 
             iniFile.Write("PLACAS_SALVAS", idPlacas);
@@ -535,6 +540,7 @@ namespace MudaIpDahora.Views
 
         private void btnRecolher_Click(object sender, EventArgs e)
         {
+            btnRecolher.BackColor = System.Drawing.SystemColors.Control;
             bool recolher = Size.Width == WidthExpanded;
             iniFile.Write("MODO_RECOLHIDO", recolher ? "TRUE" : "FALSE");
             Recolher(recolher);
@@ -558,23 +564,17 @@ namespace MudaIpDahora.Views
             Refresh();
         }
 
-        private void btnBuscaProfinet_Click(object sender, EventArgs e)
-        {
-            MessageBox.Show("Em breve mais um recurso será adicionado no MudaIpDaHora. Aguarde! =)");
-            // //get network
-            // Network conn = OpenEthernetNetwork();
-            // if (conn == null) return;
-            //
-            // //Send Search
-            // conn.EthernetTransport.SendIdentifyBroadcast();
-        }
-
         private void btnDHCP_Toogle_Click(object sender, EventArgs e)
         {
             DhcpComponente = !DhcpComponente;
 
             placas[cbPlacas.SelectedIndex].DhcpEnable = DhcpComponente;
             pnlIpAndMask.Enabled = !placas[cbPlacas.SelectedIndex].DhcpEnable;
+
+            if (!DhcpComponente)
+            {
+                txtIP_1.Focus();
+            }
 
             if (pnlIpAndMask.Enabled && txtSubNet_1.Text == "" && txtSubNet_2.Text == "" && txtSubNet_3.Text == "" && txtSubNet_4.Text == "")
             {
@@ -690,12 +690,6 @@ namespace MudaIpDahora.Views
         {
 
         }
-
-        private void testeToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            notifyIcon.ShowBalloonTip(2000, "Muda Ip DaHora", "Há uma nova versão disponivel. Atualize já o software =)", ToolTipIcon.Info);
-        }
-
         private void notifyIcon_BalloonTipClicked(object sender, EventArgs e)
         {
             var form = new FormAtualizacao(true);
@@ -707,43 +701,46 @@ namespace MudaIpDahora.Views
             }
         }
 
-        //private Network OpenEthernetNetwork()
-        //{
-        //    m_networks.Add(pcap_device.Name, new Network(new ProfinetEthernetTransport(pcap_device), null));
-        //    //get mac
-        //    if (m_DeviceTree.SelectedNode == null || m_DeviceTree.SelectedNode.Level < 1)
-        //    {
-        //        Trace.TraceWarning("No network selected");
-        //        return null;
-        //    }
-        //    string key;
-        //    if (m_DeviceTree.SelectedNode.Level == 1)
-        //        key = m_DeviceTree.SelectedNode.Name;
-        //    else
-        //        key = m_DeviceTree.SelectedNode.Parent.Name;
-        //
-        //    if (!m_networks[key].EthernetTransport.IsOpen)
-        //    {
-        //        m_networks[key].EthernetTransport.Open();
-        //        m_networks[key].EthernetTransport.OnDcpMessage += new ProfinetEthernetTransport.OnDcpMessageHandler(EthernetTransport_OnDcpMessage);
-        //        m_networks[key].EthernetTransport.OnAcyclicMessage += new ProfinetEthernetTransport.OnAcyclicMessageHandler(EthernetTransport_OnAcyclicMessage);
-        //        m_networks[key].EthernetTransport.OnCyclicMessage += new ProfinetEthernetTransport.OnCyclicMessageHandler(EthernetTransport_OnCyclicMessage);
-        //    }
-        //    return m_networks[key];
-        //}
-    }
+        private async void btnRefreshProfinetDevice_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                btnRefreshProfinetDevice.Enabled = false;
 
-    //class Network
-    //{
-    //    public ProfinetEthernetTransport EthernetTransport;
-    //    public ProfinetUdpTransport UdpTransport;
-    //    public Dictionary<string, Dictionary<DCP.BlockOptions, object>> Devices = new Dictionary<string, Dictionary<DCP.BlockOptions, object>>();
-    //    public Network(ProfinetEthernetTransport eth_transport, ProfinetUdpTransport udp_transport)
-    //    {
-    //        EthernetTransport = eth_transport;
-    //        UdpTransport = udp_transport;
-    //    }
-    //}
+                var deviceService = new ProfinetTools.Logic.Services.DeviceService();
+                var devices = await deviceService.GetDevices(placas[cbPlacas.SelectedIndex].WinPCapAdapter, TimeSpan.FromSeconds(2d));
+
+                dgvProfinet.Rows.Clear();
+                int index = 0;
+
+                foreach (var device in devices)
+                {
+                    dgvProfinet.Rows.Add();
+                    dgvProfinet.Rows[index].Cells[0].Value = device.Name;
+                    dgvProfinet.Rows[index].Cells[1].Value = device.MAC;
+                    dgvProfinet.Rows[index].Cells[2].Value = device.IP;
+                    dgvProfinet.Rows[index].Cells[3].Value = device.SubnetMask;
+                    index++;
+                }
+                dgvProfinet.Refresh();
+            }
+            finally
+            {
+                btnRefreshProfinetDevice.Enabled = true;
+
+                if (dgvProfinet.Rows.Count > 0)
+                {
+                    tabControl.SelectedTab = tabControl.TabPages["tabPageProfinet"];
+                    bool recolhido = Size.Width != WidthExpanded;
+                    if (recolhido)
+                    {
+                        btnRecolher.BackColor = System.Drawing.Color.Orange;
+                    }
+                }
+            }
+            
+        }
+    }
 
     class Placa
     {
@@ -756,6 +753,7 @@ namespace MudaIpDahora.Views
         public string[] IpAddr { get; private set; } = new string[4];
         public string[] SubNetAddr { get; private set; } = new string[4];
         public bool DhcpEnable { get; set; }
+        public WinPcapDevice WinPCapAdapter { get; set; }
 
         public void SetIpAddr(string ip)
         {

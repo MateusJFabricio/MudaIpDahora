@@ -40,8 +40,8 @@
             this.txtSubNet_2 = new System.Windows.Forms.TextBox();
             this.txtSubNet_1 = new System.Windows.Forms.TextBox();
             this.gpConfig = new System.Windows.Forms.GroupBox();
-            this.pnlIpAndMask = new System.Windows.Forms.Panel();
             this.btnSetIP = new System.Windows.Forms.Button();
+            this.pnlIpAndMask = new System.Windows.Forms.Panel();
             this.lblMascara = new System.Windows.Forms.Label();
             this.lblIP = new System.Windows.Forms.Label();
             this.toolStrip3 = new System.Windows.Forms.ToolStrip();
@@ -56,7 +56,7 @@
             this.btnAtualizar = new System.Windows.Forms.Button();
             this.dgvListaIps = new System.Windows.Forms.DataGridView();
             this.Nome = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Placa = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.clmPlaca = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.DHCP = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.IP = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Mascara = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -73,10 +73,10 @@
             this.toolStripLabel2 = new System.Windows.Forms.ToolStripLabel();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
-            this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.tabPageProfinet = new System.Windows.Forms.TabPage();
             this.dgvProfinet = new System.Windows.Forms.DataGridView();
             this.dataGridViewTextBoxColumn1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.dataGridViewCheckBoxColumn1 = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.MAC = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn3 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn4 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.toolStrip2 = new System.Windows.Forms.ToolStrip();
@@ -91,7 +91,7 @@
             this.tabControl.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
-            this.tabPage2.SuspendLayout();
+            this.tabPageProfinet.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvProfinet)).BeginInit();
             this.toolStrip2.SuspendLayout();
             this.pnlListas.SuspendLayout();
@@ -208,6 +208,16 @@
             this.gpConfig.TabStop = false;
             this.gpConfig.Text = "Configuração de IP:";
             // 
+            // btnSetIP
+            // 
+            this.btnSetIP.Location = new System.Drawing.Point(228, 50);
+            this.btnSetIP.Name = "btnSetIP";
+            this.btnSetIP.Size = new System.Drawing.Size(79, 59);
+            this.btnSetIP.TabIndex = 14;
+            this.btnSetIP.Text = "Set IP";
+            this.btnSetIP.UseVisualStyleBackColor = true;
+            this.btnSetIP.Click += new System.EventHandler(this.btnSetIP_Click);
+            // 
             // pnlIpAndMask
             // 
             this.pnlIpAndMask.Controls.Add(this.txtIP_2);
@@ -224,16 +234,6 @@
             this.pnlIpAndMask.Name = "pnlIpAndMask";
             this.pnlIpAndMask.Size = new System.Drawing.Size(225, 81);
             this.pnlIpAndMask.TabIndex = 22;
-            // 
-            // btnSetIP
-            // 
-            this.btnSetIP.Location = new System.Drawing.Point(228, 50);
-            this.btnSetIP.Name = "btnSetIP";
-            this.btnSetIP.Size = new System.Drawing.Size(79, 59);
-            this.btnSetIP.TabIndex = 14;
-            this.btnSetIP.Text = "Set IP";
-            this.btnSetIP.UseVisualStyleBackColor = true;
-            this.btnSetIP.Click += new System.EventHandler(this.btnSetIP_Click);
             // 
             // lblMascara
             // 
@@ -334,6 +334,7 @@
             // btnRecolher
             // 
             this.btnRecolher.Dock = System.Windows.Forms.DockStyle.Right;
+            this.btnRecolher.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnRecolher.Location = new System.Drawing.Point(322, 0);
             this.btnRecolher.Name = "btnRecolher";
             this.btnRecolher.Size = new System.Drawing.Size(16, 176);
@@ -359,7 +360,7 @@
             this.dgvListaIps.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvListaIps.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.Nome,
-            this.Placa,
+            this.clmPlaca,
             this.DHCP,
             this.IP,
             this.Mascara});
@@ -378,14 +379,14 @@
             this.Nome.ReadOnly = true;
             this.Nome.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
             // 
-            // Placa
+            // clmPlaca
             // 
-            this.Placa.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
-            this.Placa.HeaderText = "Placa";
-            this.Placa.Name = "Placa";
-            this.Placa.ReadOnly = true;
-            this.Placa.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            this.Placa.Width = 150;
+            this.clmPlaca.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
+            this.clmPlaca.HeaderText = "Placa";
+            this.clmPlaca.Name = "clmPlaca";
+            this.clmPlaca.ReadOnly = true;
+            this.clmPlaca.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.clmPlaca.Width = 150;
             // 
             // DHCP
             // 
@@ -463,7 +464,7 @@
             // 
             this.dadosDoProjetoToolStripMenuItem.Image = global::MudaIpDahora.Properties.Resources.baseline_local_cafe_black_18dp;
             this.dadosDoProjetoToolStripMenuItem.Name = "dadosDoProjetoToolStripMenuItem";
-            this.dadosDoProjetoToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.dadosDoProjetoToolStripMenuItem.Size = new System.Drawing.Size(165, 22);
             this.dadosDoProjetoToolStripMenuItem.Text = "Dados do Projeto";
             this.dadosDoProjetoToolStripMenuItem.Click += new System.EventHandler(this.btnInfo_Click);
             // 
@@ -472,14 +473,14 @@
             this.atualizacaoToolStripMenuItem.BackColor = System.Drawing.SystemColors.Control;
             this.atualizacaoToolStripMenuItem.Image = global::MudaIpDahora.Properties.Resources.baseline_cloud_sync_black_18dp;
             this.atualizacaoToolStripMenuItem.Name = "atualizacaoToolStripMenuItem";
-            this.atualizacaoToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.atualizacaoToolStripMenuItem.Size = new System.Drawing.Size(165, 22);
             this.atualizacaoToolStripMenuItem.Text = "Atualizacao";
             this.atualizacaoToolStripMenuItem.Click += new System.EventHandler(this.btnAtualizacao_Click);
             // 
             // tabControl
             // 
             this.tabControl.Controls.Add(this.tabPage1);
-            this.tabControl.Controls.Add(this.tabPage2);
+            this.tabControl.Controls.Add(this.tabPageProfinet);
             this.tabControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabControl.Location = new System.Drawing.Point(0, 0);
             this.tabControl.Multiline = true;
@@ -534,17 +535,17 @@
             this.toolStripButton1.ToolTipText = "btnExcluir";
             this.toolStripButton1.Click += new System.EventHandler(this.btnExcluir_Click);
             // 
-            // tabPage2
+            // tabPageProfinet
             // 
-            this.tabPage2.Controls.Add(this.dgvProfinet);
-            this.tabPage2.Controls.Add(this.toolStrip2);
-            this.tabPage2.Location = new System.Drawing.Point(4, 22);
-            this.tabPage2.Name = "tabPage2";
-            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(523, 174);
-            this.tabPage2.TabIndex = 1;
-            this.tabPage2.Text = "Profinet";
-            this.tabPage2.UseVisualStyleBackColor = true;
+            this.tabPageProfinet.Controls.Add(this.dgvProfinet);
+            this.tabPageProfinet.Controls.Add(this.toolStrip2);
+            this.tabPageProfinet.Location = new System.Drawing.Point(4, 22);
+            this.tabPageProfinet.Name = "tabPageProfinet";
+            this.tabPageProfinet.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPageProfinet.Size = new System.Drawing.Size(523, 174);
+            this.tabPageProfinet.TabIndex = 1;
+            this.tabPageProfinet.Text = "Profinet";
+            this.tabPageProfinet.UseVisualStyleBackColor = true;
             // 
             // dgvProfinet
             // 
@@ -552,7 +553,7 @@
             this.dgvProfinet.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvProfinet.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.dataGridViewTextBoxColumn1,
-            this.dataGridViewCheckBoxColumn1,
+            this.MAC,
             this.dataGridViewTextBoxColumn3,
             this.dataGridViewTextBoxColumn4});
             this.dgvProfinet.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -567,14 +568,13 @@
             this.dataGridViewTextBoxColumn1.HeaderText = "Nome";
             this.dataGridViewTextBoxColumn1.Name = "dataGridViewTextBoxColumn1";
             this.dataGridViewTextBoxColumn1.ReadOnly = true;
-            this.dataGridViewTextBoxColumn1.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
             // 
-            // dataGridViewCheckBoxColumn1
+            // MAC
             // 
-            this.dataGridViewCheckBoxColumn1.HeaderText = "DHCP";
-            this.dataGridViewCheckBoxColumn1.Name = "dataGridViewCheckBoxColumn1";
-            this.dataGridViewCheckBoxColumn1.ReadOnly = true;
-            this.dataGridViewCheckBoxColumn1.Width = 50;
+            this.MAC.HeaderText = "MAC";
+            this.MAC.Name = "MAC";
+            this.MAC.ReadOnly = true;
+            this.MAC.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
             // 
             // dataGridViewTextBoxColumn3
             // 
@@ -608,6 +608,7 @@
             this.btnRefreshProfinetDevice.Name = "btnRefreshProfinetDevice";
             this.btnRefreshProfinetDevice.Size = new System.Drawing.Size(23, 22);
             this.btnRefreshProfinetDevice.Text = "Atualizar Devices";
+            this.btnRefreshProfinetDevice.Click += new System.EventHandler(this.btnRefreshProfinetDevice_Click);
             // 
             // pnlListas
             // 
@@ -650,8 +651,8 @@
             this.tabPage1.PerformLayout();
             this.toolStrip1.ResumeLayout(false);
             this.toolStrip1.PerformLayout();
-            this.tabPage2.ResumeLayout(false);
-            this.tabPage2.PerformLayout();
+            this.tabPageProfinet.ResumeLayout(false);
+            this.tabPageProfinet.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvProfinet)).EndInit();
             this.toolStrip2.ResumeLayout(false);
             this.toolStrip2.PerformLayout();
@@ -679,17 +680,12 @@
         private System.Windows.Forms.NotifyIcon notifyIcon;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.DataGridView dgvListaIps;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Nome;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Placa;
-        private System.Windows.Forms.DataGridViewCheckBoxColumn DHCP;
-        private System.Windows.Forms.DataGridViewTextBoxColumn IP;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Mascara;
         private System.Windows.Forms.Button btnRecolher;
         private System.Windows.Forms.TabControl tabControl;
         private System.Windows.Forms.TabPage tabPage1;
         private System.Windows.Forms.ToolStrip toolStrip1;
         private System.Windows.Forms.ToolStripButton toolStripButton1;
-        private System.Windows.Forms.TabPage tabPage2;
+        private System.Windows.Forms.TabPage tabPageProfinet;
         private System.Windows.Forms.DataGridView dgvProfinet;
         private System.Windows.Forms.ToolStrip toolStrip2;
         private System.Windows.Forms.ToolStripButton btnRefreshProfinetDevice;
@@ -707,13 +703,18 @@
         private System.Windows.Forms.ToolStripButton btnDHCP_Toogle;
         private System.Windows.Forms.ToolStripLabel toolStripLabel2;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
-        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn1;
-        private System.Windows.Forms.DataGridViewCheckBoxColumn dataGridViewCheckBoxColumn1;
-        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn3;
-        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn4;
         private System.Windows.Forms.Panel pnlListas;
         private System.Windows.Forms.Button btnSetIP;
         private System.Windows.Forms.Panel pnlIpAndMask;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Nome;
+        private System.Windows.Forms.DataGridViewTextBoxColumn clmPlaca;
+        private System.Windows.Forms.DataGridViewCheckBoxColumn DHCP;
+        private System.Windows.Forms.DataGridViewTextBoxColumn IP;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Mascara;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn1;
+        private System.Windows.Forms.DataGridViewTextBoxColumn MAC;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn3;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn4;
     }
 }
 
