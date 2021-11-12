@@ -36,7 +36,7 @@
             this.rtBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.rtBox.Location = new System.Drawing.Point(0, 0);
             this.rtBox.Name = "rtBox";
-            this.rtBox.Size = new System.Drawing.Size(394, 121);
+            this.rtBox.Size = new System.Drawing.Size(394, 184);
             this.rtBox.TabIndex = 0;
             this.rtBox.Text = "";
             // 
@@ -44,7 +44,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(394, 121);
+            this.ClientSize = new System.Drawing.Size(394, 184);
             this.Controls.Add(this.rtBox);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
             this.Name = "FormInfo";

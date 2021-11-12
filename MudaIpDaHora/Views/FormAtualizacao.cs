@@ -46,14 +46,16 @@ namespace MudaIpDahora.Views
                     }
                     else
                     {
-                        MessageBox.Show("Não foi encontrado uma nova versão", "Mensagem", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        if (!Silent)
+                            MessageBox.Show("Não foi encontrado uma nova versão", "Mensagem", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         concluido = true;
                     }
                         
                 }
             }catch(Exception ex)
             {
-                MessageBox.Show(ex.Message);
+                if (!Silent)
+                    MessageBox.Show(ex.Message);
                 concluidoComErro = true;
             }
             finally
