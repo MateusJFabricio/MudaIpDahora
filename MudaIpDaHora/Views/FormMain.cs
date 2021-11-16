@@ -162,7 +162,7 @@ namespace MudaIpDahora.Views
 
                 var placa = new Placa();
                 placa.Nome = adapter.Interface.FriendlyName;
-                placa.Descricao = adapter.Interface.Description;
+                placa.Descricao = adapter.Interface.FriendlyName + " - " + adapter.Interface.Description.Replace("Network adapter '", "").Replace("' on local host", "");
                 placa.DhcpEnable = placaRede.GetIPProperties().GetIPv4Properties().IsDhcpEnabled;
 
                 if (!placa.DhcpEnable)
@@ -703,6 +703,9 @@ namespace MudaIpDahora.Views
 
         private async void btnRefreshProfinetDevice_Click(object sender, EventArgs e)
         {
+            if (!btnRefreshProfinetDevice.Enabled)
+                return;
+
             try
             {
                 btnRefreshProfinetDevice.Enabled = false;
