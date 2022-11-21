@@ -743,6 +743,25 @@ namespace MudaIpDahora.Views
             }
             
         }
+
+        private void btnRebootApp_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                Process process = new Process
+                {
+                    StartInfo = new ProcessStartInfo(Application.ExecutablePath)
+                };
+                if (process.Start())
+                {
+                    Process.GetCurrentProcess().Kill();
+                }
+            }
+            catch{
+
+            }
+        }
+
     }
 
     class Placa

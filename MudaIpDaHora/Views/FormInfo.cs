@@ -19,8 +19,6 @@ namespace MudaIpDahora.Views
             rtBox.AppendText("Gostaria de contribuir?" + Environment.NewLine);
             rtBox.AppendText("Visite o GitHub no Link:" + Environment.NewLine);
             rtBox.AppendText("https://github.com/MateusJFabricio/MudaIpDahora");
-
-        
         }
     }
 }

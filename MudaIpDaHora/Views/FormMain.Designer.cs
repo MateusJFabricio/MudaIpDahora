@@ -64,6 +64,7 @@
             this.ferramentasToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.inicializarComWindowsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.gerenciadorDePlacasDeRedeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnRebootApp = new System.Windows.Forms.ToolStripMenuItem();
             this.sobreToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.dadosDoProjetoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.atualizacaoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -426,7 +427,8 @@
             // 
             this.ferramentasToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.inicializarComWindowsToolStripMenuItem,
-            this.gerenciadorDePlacasDeRedeToolStripMenuItem});
+            this.gerenciadorDePlacasDeRedeToolStripMenuItem,
+            this.btnRebootApp});
             this.ferramentasToolStripMenuItem.Image = global::MudaIpDahora.Properties.Resources.baseline_miscellaneous_services_black_18dp;
             this.ferramentasToolStripMenuItem.Name = "ferramentasToolStripMenuItem";
             this.ferramentasToolStripMenuItem.Size = new System.Drawing.Size(100, 20);
@@ -447,6 +449,14 @@
             this.gerenciadorDePlacasDeRedeToolStripMenuItem.Size = new System.Drawing.Size(235, 22);
             this.gerenciadorDePlacasDeRedeToolStripMenuItem.Text = "Gerenciador de Placas de Rede";
             this.gerenciadorDePlacasDeRedeToolStripMenuItem.Click += new System.EventHandler(this.gerenciadorDePlacasDeRedeToolStripMenuItem_Click);
+            // 
+            // btnRebootApp
+            // 
+            this.btnRebootApp.Image = global::MudaIpDahora.Properties.Resources.restart;
+            this.btnRebootApp.Name = "btnRebootApp";
+            this.btnRebootApp.Size = new System.Drawing.Size(235, 22);
+            this.btnRebootApp.Text = "Reboot App";
+            this.btnRebootApp.Click += new System.EventHandler(this.btnRebootApp_Click);
             // 
             // sobreToolStripMenuItem
             // 
@@ -715,6 +725,7 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn MAC;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn3;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn4;
+        private System.Windows.Forms.ToolStripMenuItem btnRebootApp;
     }
 }
 
