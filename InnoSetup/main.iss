@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Muda Ip Dahora"
-#define MyAppVersion "3.0.0.3"
+#define MyAppVersion "3.0.0.4"
 #define MyAppURL "https://github.com/MateusJFabricio/MudaIpDahora"
 #define MyAppExeName "MudaIpDahora.exe"
 
