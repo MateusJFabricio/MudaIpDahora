@@ -75,11 +75,11 @@ namespace MudaIpDahora.Models
                     nomeDownload = "MudaIpDaHora_V" + Release.tag_name.ToString() + ".exe";
 
                     if (asset.name.Contains(".exe"))
-                        cliente.DownloadFileAsync(new Uri(asset.browser_download_url), nomeDownload);
+                        cliente.DownloadFile(new Uri(asset.browser_download_url), nomeDownload);
                     else
                     {
                         if (!System.IO.File.Exists(asset.name))
-                            cliente.DownloadFileAsync(new Uri(asset.browser_download_url), asset.name);
+                            cliente.DownloadFile(new Uri(asset.browser_download_url), asset.name);
                     }
 
                 }
@@ -88,6 +88,27 @@ namespace MudaIpDahora.Models
             return true;
         }
 
+        public bool IniciarInstalador()
+        {
+            try
+            {
+                Process process = new Process
+                {
+                    StartInfo = new ProcessStartInfo(nomeDownload)
+                };
+                if (process.Start())
+                {
+                    Process.GetCurrentProcess().Kill();
+                    return true;
+                }
+                else
+                    return false;
+            }
+            catch
+            {
+                return false;
+            }
+        }
         public bool CriarAtalho(bool silent)
         {
             Thread.Sleep(1000);

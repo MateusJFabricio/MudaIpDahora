@@ -12,7 +12,7 @@ namespace MudaIpDahora.Views
         private bool localizadoRelease;
         private bool versaoAtualInferior;
         private bool downloadConcluido;
-        private bool atalhoCriado;
+        private bool instaladorIniciado;
         private bool concluidoComErro = false;
         private bool concluido = false;
         public bool Silent { get; set; }
@@ -40,8 +40,7 @@ namespace MudaIpDahora.Views
                         downloadConcluido = atualizador.DownloadComponentes();
                         if (downloadConcluido)
                         {
-                            atalhoCriado = atualizador.CriarAtalho(Silent);
-                            ShortcutPath = atualizador.ShortcutPath;
+                            instaladorIniciado = atualizador.IniciarInstalador();
                         }
                     }
                     else
@@ -110,11 +109,11 @@ namespace MudaIpDahora.Views
                 return;
             }
 
-            if (!atalhoCriado)
+            if (!instaladorIniciado)
             {
                 lblPasso.Text = "Passo 4 de 4";
                 progressBar.Value = 75;
-                lblAtividade.Text = "Atividade: Criando o atalho de inicializacao";
+                lblAtividade.Text = "Atividade: Iniciando Instalador";
                 return;
             }
         }
