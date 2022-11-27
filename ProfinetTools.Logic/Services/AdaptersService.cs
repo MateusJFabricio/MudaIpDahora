@@ -9,14 +9,14 @@ namespace ProfinetTools.Logic.Services
 {
 	public class AdaptersService : IAdaptersService
 	{
-		private readonly BehaviorSubject<ICaptureDevice> selectedAdapterSubject = new BehaviorSubject<ICaptureDevice>(null);
-		public List<ICaptureDevice> GetAdapters()
+		private readonly BehaviorSubject<ILiveDevice> selectedAdapterSubject = new BehaviorSubject<ILiveDevice>(null);
+		public List<ILiveDevice> GetAdapters()
 		{
-			var devices = new List<ICaptureDevice>();
+			var devices = new List<ILiveDevice>();
 
 			try
 			{
-				foreach (ICaptureDevice dev in CaptureDeviceList.Instance)
+				foreach (ILiveDevice dev in CaptureDeviceList.Instance)
 					devices.Add(dev);
 			}
 			catch (Exception e)
@@ -27,11 +27,13 @@ namespace ProfinetTools.Logic.Services
 			return devices;
 		}
 
-		public void SelectAdapter(ICaptureDevice adapter)
+		public void SelectAdapter(ILiveDevice adapter)
 		{
 			selectedAdapterSubject.OnNext(adapter);
 		}
 
-		public IObservable<ICaptureDevice> SelectedAdapter => selectedAdapterSubject.AsObservable();
+		public IObservable<ILiveDevice> SelectedAdapter => selectedAdapterSubject.AsObservable();
+
+		IObservable<ILiveDevice> IAdaptersService.SelectedAdapter => throw new NotImplementedException();
 	}
 }

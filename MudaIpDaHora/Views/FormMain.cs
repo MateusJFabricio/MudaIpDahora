@@ -12,7 +12,8 @@ using System.Windows.Forms;
 using MudaIpDahora.Models;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
-using SharpPcap.WinPcap;
+using SharpPcap.LibPcap;
+using SharpPcap;
 
 namespace MudaIpDahora.Views
 {
@@ -148,11 +149,11 @@ namespace MudaIpDahora.Views
         {
             placas.Clear();
 
-            var adaptersService = new ProfinetTools.Logic.Services.AdaptersService();
-            var adapters = adaptersService
-                .GetAdapters()
-                .Cast<WinPcapDevice>()
-                .Where((x) => x.Interface.Addresses.Count > 0)
+            var deviceList = CaptureDeviceList.Instance;
+
+            var adapters = deviceList
+                .Cast<LibPcapLiveDevice>()
+                .Where((x) => x.Interface.Addresses.Count > 0 && x.Loopback == false)
                 .ToList();
             
 
@@ -762,6 +763,13 @@ namespace MudaIpDahora.Views
             }
         }
 
+        private void testeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            foreach (var dev in CaptureDeviceList.Instance)
+            {
+                var str = String.Format("{0} {1}", dev.Name, dev.Description);
+            }
+        }
     }
 
     class Placa
@@ -775,7 +783,7 @@ namespace MudaIpDahora.Views
         public string[] IpAddr { get; private set; } = new string[4];
         public string[] SubNetAddr { get; private set; } = new string[4];
         public bool DhcpEnable { get; set; }
-        public WinPcapDevice WinPCapAdapter { get; set; }
+        public LibPcapLiveDevice WinPCapAdapter { get; set; }
 
         public void SetIpAddr(string ip)
         {

@@ -31,7 +31,7 @@ namespace ProfinetTools.Logic.Services
 			}
 		}
 
-		public Task<SaveResult> SendSettings(ICaptureDevice adapter, string macAddress, Device newSettings)
+		public Task<SaveResult> SendSettings(ILiveDevice adapter, string macAddress, Device newSettings)
 		{
 			var disposables = new CompositeDisposable();
 			var transport = new ProfinetEthernetTransport(adapter);
@@ -64,7 +64,7 @@ namespace ProfinetTools.Logic.Services
 			}
 		}
 
-		public Task<SaveResult> FactoryReset(ICaptureDevice adapter, string deviceName)
+		public Task<SaveResult> FactoryReset(ILiveDevice adapter, string deviceName)
 		{
 			var disposables = new CompositeDisposable();
 			var transport = new ProfinetEthernetTransport(adapter);

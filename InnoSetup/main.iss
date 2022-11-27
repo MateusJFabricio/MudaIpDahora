@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Muda Ip Dahora"
-#define MyAppVersion "3.0.0.4"
+#define MyAppVersion "4.0.0.0"
 #define MyAppURL "https://github.com/MateusJFabricio/MudaIpDahora"
 #define MyAppExeName "MudaIpDahora.exe"
 
@@ -30,25 +30,50 @@ Name: "brazilianportuguese"; MessagesFile: "compiler:Languages\BrazilianPortugue
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "..\out\Release\MudaIpDahora.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\out\Release\JetBrains.Annotations.dll"; DestDir: "{app}"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
+Source: "Components\npcap-1.71.exe"; DestDir: "{app}"
+Source: "..\out\Release\JetBrains.Annotations.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\out\Release\JetBrains.Annotations.xml"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\out\Release\Microsoft.Bcl.AsyncInterfaces.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\out\Release\Microsoft.Bcl.AsyncInterfaces.xml"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\out\Release\MudaIpDahora.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\out\Release\MudaIpDahora.exe.config"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\out\Release\Newtonsoft.Json.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\out\Release\Newtonsoft.Json.xml"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\out\Release\Ninject.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\out\Release\Ninject.xml"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\out\Release\PacketDotNet.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\out\Release\ProfinetTools.Interfaces.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\out\Release\ProfinetTools.Interfaces.dll.config"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\out\Release\ProfinetTools.Logic.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\out\Release\ProfinetTools.Logic.dll.config"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\out\Release\RestSharp.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\out\Release\RestSharp.xml"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\out\Release\SharpPcap.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\out\Release\System.Buffers.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\out\Release\System.Buffers.xml"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\out\Release\System.Memory.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\out\Release\System.Memory.xml"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\out\Release\System.Numerics.Vectors.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\out\Release\System.Numerics.Vectors.xml"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\out\Release\System.Reactive.Core.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\out\Release\System.Reactive.Core.xml"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\out\Release\System.Reactive.Interfaces.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\out\Release\System.Reactive.Interfaces.xml"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\out\Release\System.Reactive.Linq.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\out\Release\System.Reactive.Linq.xml"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\out\Release\System.Runtime.CompilerServices.Unsafe.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\out\Release\System.Runtime.CompilerServices.Unsafe.xml"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\out\Release\System.Text.Encoding.CodePages.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "Components\npcap-1.55.exe"; DestDir: "{app}"
+Source: "..\out\Release\System.Text.Encoding.CodePages.xml"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\out\Release\System.Text.Encodings.Web.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\out\Release\System.Text.Encodings.Web.xml"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\out\Release\System.Text.Json.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\out\Release\System.Text.Json.xml"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\out\Release\System.Threading.Tasks.Extensions.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\out\Release\System.Threading.Tasks.Extensions.xml"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\out\Release\System.ValueTuple.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\out\Release\System.ValueTuple.xml"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
@@ -56,7 +81,7 @@ Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"
 Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
 
 [Run]
-Filename: "{app}\npcap-1.55.exe"; Flags: waituntilterminated
+Filename: "{app}\npcap-1.71.exe"; Flags: waituntilterminated
 Filename: "{app}\{#MyAppExeName}"; Flags: nowait postinstall skipifsilent; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"
 
 [Components]

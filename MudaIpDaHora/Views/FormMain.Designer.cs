@@ -474,7 +474,7 @@
             // 
             this.dadosDoProjetoToolStripMenuItem.Image = global::MudaIpDahora.Properties.Resources.baseline_local_cafe_black_18dp;
             this.dadosDoProjetoToolStripMenuItem.Name = "dadosDoProjetoToolStripMenuItem";
-            this.dadosDoProjetoToolStripMenuItem.Size = new System.Drawing.Size(165, 22);
+            this.dadosDoProjetoToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.dadosDoProjetoToolStripMenuItem.Text = "Dados do Projeto";
             this.dadosDoProjetoToolStripMenuItem.Click += new System.EventHandler(this.btnInfo_Click);
             // 
@@ -483,7 +483,7 @@
             this.atualizacaoToolStripMenuItem.BackColor = System.Drawing.SystemColors.Control;
             this.atualizacaoToolStripMenuItem.Image = global::MudaIpDahora.Properties.Resources.baseline_cloud_sync_black_18dp;
             this.atualizacaoToolStripMenuItem.Name = "atualizacaoToolStripMenuItem";
-            this.atualizacaoToolStripMenuItem.Size = new System.Drawing.Size(165, 22);
+            this.atualizacaoToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.atualizacaoToolStripMenuItem.Text = "Atualizacao";
             this.atualizacaoToolStripMenuItem.Click += new System.EventHandler(this.btnAtualizacao_Click);
             // 

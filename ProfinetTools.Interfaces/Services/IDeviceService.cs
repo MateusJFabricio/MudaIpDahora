@@ -7,9 +7,9 @@ using SharpPcap;
 
 namespace ProfinetTools.Interfaces.Services
 {
-	public interface IDeviceService
+	public interface ILiveDeviceService
 	{
-		Task<List<Device>> GetDevices(ICaptureDevice adapter, TimeSpan timeout);
+		Task<List<Device>> GetDevices(ILiveDevice adapter, TimeSpan timeout);
 		void SelectDevice(Device device);
 		IObservable<Device> SelectedDevice { get; }
 	}

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Text;
+using ProfinetTools.Interfaces.Models;
 using ProfinetTools.Logic.Protocols;
 using SharpPcap;
 
@@ -13,7 +14,7 @@ namespace ProfinetTools.Logic.Transport
 {
 	public class ProfinetEthernetTransport : IDisposable
 	{
-		private ICaptureDevice adapter;
+		private ILiveDevice adapter;
 		private UInt32 lastXid = 0;
 		private bool isOpen = false;
 
@@ -25,18 +26,18 @@ namespace ProfinetTools.Logic.Transport
 		public event OnCyclicMessageHandler OnCyclicMessage;
 
 		public bool IsOpen => isOpen;
-		public ICaptureDevice Adapter => adapter;
+		public ILiveDevice Adapter => adapter;
 
-		public ProfinetEthernetTransport(ICaptureDevice adapter)
+		public ProfinetEthernetTransport(ILiveDevice adapter)
 		{
-			this.adapter = adapter;
-			this.adapter.OnPacketArrival += new PacketArrivalEventHandler(m_adapter_OnPacketArrival);
-		}
+            this.adapter = adapter;
+            this.adapter.OnPacketArrival += new PacketArrivalEventHandler(m_adapter_OnPacketArrival);
+        }
 
-		/// <summary>
-		/// Will return pcap version. Use this to validate installed pcap library
-		/// </summary>
-		public static string PcapVersion
+        /// <summary>
+        /// Will return pcap version. Use this to validate installed pcap library
+        /// </summary>
+        public static string PcapVersion
 		{
 			get
 			{
@@ -52,10 +53,8 @@ namespace ProfinetTools.Logic.Transport
 		public void Open()
 		{
 			if (isOpen) return;
-			if (adapter is SharpPcap.WinPcap.WinPcapDevice)
-				((SharpPcap.WinPcap.WinPcapDevice)adapter).Open(SharpPcap.WinPcap.OpenFlags.MaxResponsiveness | SharpPcap.WinPcap.OpenFlags.NoCaptureLocal, -1);
-			else
-				adapter.Open(DeviceMode.Normal);
+			
+			adapter.Open(DeviceModes.None);
 			adapter.Filter = "ether proto 0x8892 or vlan 0";
 			adapter.StartCapture();
 			isOpen = true;
@@ -85,7 +84,7 @@ namespace ProfinetTools.Logic.Transport
 			}
 		}
 
-		public static DCP.IpInfo GetPcapIp(SharpPcap.ICaptureDevice pcapDevice)
+		public static DCP.IpInfo GetPcapIp(ILiveDevice pcapDevice)
 		{
 			foreach (System.Net.NetworkInformation.NetworkInterface nic in System.Net.NetworkInformation.NetworkInterface.GetAllNetworkInterfaces())
 			{
@@ -142,11 +141,11 @@ namespace ProfinetTools.Logic.Transport
 			return null;
 		}
 
-		public static SharpPcap.ICaptureDevice GetPcapDevice(string localIp)
+		public static SharpPcap.ILiveDevice GetPcapDevice(string localIp)
 		{
 			IPAddress searchIp = IPAddress.Parse(localIp);
 			PhysicalAddress searchMac = null;
-			Dictionary<PhysicalAddress, SharpPcap.ICaptureDevice> networks = new Dictionary<PhysicalAddress, SharpPcap.ICaptureDevice>();
+			Dictionary<PhysicalAddress, SharpPcap.ILiveDevice> networks = new Dictionary<PhysicalAddress, SharpPcap.ILiveDevice>();
 
 			//search all networks
 			foreach (System.Net.NetworkInformation.NetworkInterface nic in System.Net.NetworkInformation.NetworkInterface.GetAllNetworkInterfaces())
@@ -176,7 +175,7 @@ namespace ProfinetTools.Logic.Transport
 			if (searchMac == null) return null;
 
 			//search all pcap networks
-			foreach (SharpPcap.ICaptureDevice dev in SharpPcap.CaptureDeviceList.Instance)
+			foreach (SharpPcap.ILiveDevice dev in SharpPcap.CaptureDeviceList.Instance)
 			{
 				try
 				{
@@ -273,21 +272,23 @@ namespace ProfinetTools.Logic.Transport
 			}
 		}
 
-		private void m_adapter_OnPacketArrival(object sender, CaptureEventArgs e)
+		private void m_adapter_OnPacketArrival(object sender, PacketCapture e)
 		{
-			if (e.Packet.LinkLayerType != PacketDotNet.LinkLayers.Ethernet) return;
-			PacketDotNet.Utils.ByteArraySegment bas = new PacketDotNet.Utils.ByteArraySegment(e.Packet.Data);
+			var packet = e.GetPacket();
+
+            if (packet.LinkLayerType != PacketDotNet.LinkLayers.Ethernet) return;
+			PacketDotNet.Utils.ByteArraySegment bas = new PacketDotNet.Utils.ByteArraySegment(packet.Data);
 			PacketDotNet.EthernetPacket ethP = new PacketDotNet.EthernetPacket(bas);
-			if (ethP.Type != (PacketDotNet.EthernetPacketType)0x8892 && ethP.Type != PacketDotNet.EthernetPacketType.VLanTaggedFrame) return;
+			if (ethP.Type != (PacketDotNet.EthernetType)0x8892 && ethP.Type != PacketDotNet.EthernetType.VLanTaggedFrame) return;
 			if (ethP.PayloadPacket != null && ethP.PayloadPacket is PacketDotNet.Ieee8021QPacket)
 			{
-				if (((PacketDotNet.Ieee8021QPacket)ethP.PayloadPacket).Type != (PacketDotNet.EthernetPacketType)0x8892) return;
+				if (((PacketDotNet.Ieee8021QPacket)ethP.PayloadPacket).Type != (PacketDotNet.EthernetType)0x8892) return;
 				if (((PacketDotNet.Ieee8021QPacket)ethP.PayloadPacket).PayloadData == null)
 				{
 					Trace.TraceWarning("Empty vlan package");
 					return;
 				}
-				m_adapter_OnProfinetArrival(new ConnectionInfoEthernet(this, ethP.DestinationHwAddress, ethP.SourceHwAddress), new MemoryStream(((PacketDotNet.Ieee8021QPacket)ethP.PayloadPacket).PayloadData, false));
+				m_adapter_OnProfinetArrival(new ConnectionInfoEthernet(this, ethP.DestinationHardwareAddress, ethP.SourceHardwareAddress), new MemoryStream(((PacketDotNet.Ieee8021QPacket)ethP.PayloadPacket).PayloadData, false));
 			}
 			else
 			{
@@ -296,14 +297,27 @@ namespace ProfinetTools.Logic.Transport
 					Trace.TraceWarning("Empty ethernet package");
 					return;
 				}
-				m_adapter_OnProfinetArrival(new ConnectionInfoEthernet(this, ethP.DestinationHwAddress, ethP.SourceHwAddress), new MemoryStream(ethP.PayloadData, false));
+				m_adapter_OnProfinetArrival(new ConnectionInfoEthernet(this, ethP.DestinationHardwareAddress, ethP.SourceHardwareAddress), new MemoryStream(ethP.PayloadData, false));
 			}
 		}
-
+		
 		private void Send(MemoryStream stream)
 		{
-			byte[] buffer = stream.GetBuffer();
-			adapter.SendPacket(buffer, (int)stream.Position);
+			if (adapter.Started)
+			{
+				try
+				{
+                    byte[] buffer = stream.GetBuffer();
+                    adapter.Open();
+                    adapter.SendPacket(buffer, (int)stream.Position);
+                }
+                catch
+				{
+
+				}
+                
+            }
+			
 		}
 
 		public void SendIdentifyBroadcast()
@@ -460,11 +474,11 @@ namespace ProfinetTools.Logic.Transport
 			//Profinet DCP
 			DCP.EncodeGetResponse(mem, xid, option, data);
 
-			//send
-			Send(mem);
-		}
+            //send
+            Send(mem);
+        }
 
-		public IAsyncResult BeginSetRequest(PhysicalAddress destination, DCP.BlockOptions option, DCP.BlockQualifiers qualifiers, byte[] data)
+        public IAsyncResult BeginSetRequest(PhysicalAddress destination, DCP.BlockOptions option, DCP.BlockQualifiers qualifiers, byte[] data)
 		{
 			Trace.WriteLine("Sending Set " + option.ToString() + " request", null);
 
@@ -505,11 +519,11 @@ namespace ProfinetTools.Logic.Transport
 			//Profinet DCP
 			DCP.EncodeSetResponse(mem, xid, option, status);
 
-			//Send
-			Send(mem);
-		}
+            //Send
+            Send(mem);
+        }
 
-		public DCP.BlockErrors EndSetRequest(IAsyncResult result, int timeoutMs)
+        public DCP.BlockErrors EndSetRequest(IAsyncResult result, int timeoutMs)
 		{
 			ProfinetAsyncDcpResult r = (ProfinetAsyncDcpResult)result;
 

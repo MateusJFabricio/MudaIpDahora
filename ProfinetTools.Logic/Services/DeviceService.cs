@@ -15,32 +15,41 @@ using SharpPcap;
 
 namespace ProfinetTools.Logic.Services
 {
-	public class DeviceService : IDeviceService
+	public class DeviceService : ILiveDeviceService
 	{
-		public async Task<List<Device>> GetDevices(ICaptureDevice adapter, TimeSpan timeout)
+        private List<Device> Devices = new List<Device>();
+        public async Task<List<Device>> GetDevices(ILiveDevice adapter, TimeSpan timeout)
 		{
+			Devices.Clear();
 			var disposables = new CompositeDisposable();
 			var transport = new ProfinetEthernetTransport(adapter);
 			transport.Open();
 			transport.AddDisposableTo(disposables);
 
-			var devices = new List<Device>();
+			transport.OnDcpMessage += Transport_OnDcpMessage;
 
-			Observable.FromEventPattern<ProfinetEthernetTransport.OnDcpMessageHandler, ConnectionInfoEthernet, DcpMessageArgs>(h => transport.OnDcpMessage += h, h => transport.OnDcpMessage -= h)
-				.Select(x => ConvertEventToDevice(x.Sender, x.EventArgs))
-				.Where(device => devices!=null)
-				.Do(device => devices.Add(device))
-				.Subscribe()
-				.AddDisposableTo(disposables)
-				;
+            //Observable.FromEventPattern<ProfinetEthernetTransport.OnDcpMessageHandler, ConnectionInfoEthernet, DcpMessageArgs>(h => transport.OnDcpMessage += h, h => transport.OnDcpMessage -= h)
+			//	.Select(x => ConvertEventToDevice(x.Sender, x.EventArgs))
+			//	.Where(device => Devices!=null)
+			//	.Do(device => Devices.Add(device))
+			//	.Subscribe()
+			//	.AddDisposableTo(disposables)
+			//	;
 
-			transport.SendIdentifyBroadcast();
+            transport.SendIdentifyBroadcast();
 
 			await Task.Delay(timeout);
 
 			disposables.Dispose();
 
-			return devices;
+			return Devices;
+		}
+
+		private void Transport_OnDcpMessage(ConnectionInfoEthernet sender, DcpMessageArgs args)
+		{
+			var _device = ConvertEventToDevice(sender, args);
+			if (_device != null)
+				Devices.Add(_device);
 		}
 
 		private readonly BehaviorSubject<Device> selectedDeviceSubject = new BehaviorSubject<Device>(null);

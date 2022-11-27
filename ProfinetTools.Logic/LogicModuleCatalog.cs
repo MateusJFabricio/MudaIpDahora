@@ -11,7 +11,7 @@ namespace ProfinetTools.Logic
         public override void Load()
         {
 	        Bind<IAdaptersService>().To<AdaptersService>().InSingletonScope();
-	        Bind<IDeviceService>().To<DeviceService>().InSingletonScope();
+	        Bind<ILiveDeviceService>().To<DeviceService>().InSingletonScope();
 	        Bind<ISettingsService>().To<SettingsService>().InSingletonScope();
         }
     }
