@@ -14,12 +14,16 @@ using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using SharpPcap.LibPcap;
 using SharpPcap;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace MudaIpDahora.Views
 {
 
     public partial class FormMain : Form
     {
+        Atualizador atualizador = new Atualizador();
+        Task<bool> NovaVersaoEncontradaTask;
         List<Placa> placas = new List<Placa>();
         List<Placa> placasSalvas = new List<Placa>();
         private ContextMenu contextMenu;
@@ -70,7 +74,19 @@ namespace MudaIpDahora.Views
             this.menuItem.Text = "E&xit";
             this.menuItem.Click += new EventHandler(this.menuItem_Click);
             notifyIcon.ContextMenu = this.contextMenu;
+            atualizador.NovaVersaoEncontradaEvent += Atualizador_NovaVersaoEncontradaEvent;
+            atualizador.NovaVersaoEncontradaAsync();
         }
+
+        private void Atualizador_NovaVersaoEncontradaEvent(object sender, EventArgs e)
+        {
+            if (MessageBox.Show("Há uma nova versão deste software disponivel. Gostaria de fazer o download?", "Mensagem", 
+                MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+            {
+                btnAtualizacao_Click(sender, e);
+            }
+        }
+
         private void ConfiguraForm()
         {
             bool recolhido = iniFile.Read("MODO_RECOLHIDO") == "TRUE";

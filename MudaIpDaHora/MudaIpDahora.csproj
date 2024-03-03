@@ -187,6 +187,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Models\Atualizador.cs" />
+    <Compile Include="Models\Log.cs" />
     <Compile Include="Views\FormAtualizacao.cs">
       <SubType>Form</SubType>
     </Compile>

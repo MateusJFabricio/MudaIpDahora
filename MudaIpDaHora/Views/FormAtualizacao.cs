@@ -21,10 +21,21 @@ namespace MudaIpDahora.Views
 
         public FormAtualizacao(bool silent)
         {
+            //Tamanho menor
+            Height = 110;
+            progressBar_Click(null, null);
+
             Silent = silent;
             InitializeComponent();
             AtualizacaoProcess = new Thread(Atualizar);
             AtualizacaoProcess.Start();
+        }
+        private void ResizeForm()
+        {
+            if (Height == 110)
+                Height = 344;
+            else
+                Height = 110;
         }
         private void Atualizar()
         {
@@ -40,7 +51,10 @@ namespace MudaIpDahora.Views
                         downloadConcluido = atualizador.DownloadComponentes();
                         if (downloadConcluido)
                         {
-                            instaladorIniciado = atualizador.IniciarInstalador();
+                            if (MessageBox.Show("Gostaria de iniciar o instalador?", "Iniciar Instalador", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                            {
+                                instaladorIniciado = atualizador.IniciarInstalador();
+                            }
                         }
                     }
                     else
@@ -54,7 +68,7 @@ namespace MudaIpDahora.Views
             }catch(Exception ex)
             {
                 if (!Silent)
-                    MessageBox.Show(ex.Message);
+                    MessageBox.Show(ex.Message, "Mensagem", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 concluidoComErro = true;
             }
             finally
@@ -66,6 +80,21 @@ namespace MudaIpDahora.Views
 
         private void timer_Tick(object sender, EventArgs e)
         {
+            //Update Log
+            if (atualizador.Log.Count > 0)
+            {
+                rtbLog.AppendText(atualizador.Log.Dequeue().ToString() + Environment.NewLine);
+            }
+
+            if (!atualizador.Download.Finished)
+            {
+                progressBar.Value = atualizador.Download.Progress;
+                lblAtividade.Text = "Download - " + atualizador.Download.Name + " - Bytes: " +
+                    atualizador.Download.BytesDownloaded + " de " + atualizador.Download.TotalBytes;
+                return;
+            }
+
+            //Update Step progress
             if (concluido)
             {
                 progressBar.Value = 100;
@@ -116,6 +145,11 @@ namespace MudaIpDahora.Views
                 lblAtividade.Text = "Atividade: Iniciando Instalador";
                 return;
             }
+        }
+
+        private void progressBar_Click(object sender, EventArgs e)
+        {
+            ResizeForm();
         }
     }
 }
