@@ -138,7 +138,16 @@ namespace MudaIpDahora.Views
 
         private void btnAtualizar_Click(object sender, EventArgs e)
         {
-            AtualizarPlacas();
+            try
+            {
+                AtualizarPlacas();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Trap: " + Environment.NewLine + ex.Message);
+                throw;
+            }
+            
         }
         private void menuItem_Click(object Sender, EventArgs e)
         {
@@ -159,7 +168,9 @@ namespace MudaIpDahora.Views
 
             foreach (var adapter in adapters)
             {
-                var placaRede = NetworkInterface.GetAllNetworkInterfaces().Where((x) => x.GetPhysicalAddress().ToString() == adapter.Interface.MacAddress.ToString()).FirstOrDefault();
+                var placaRede = NetworkInterface.GetAllNetworkInterfaces().Where((x) => x.GetPhysicalAddress().ToString() == adapter.Interface?.MacAddress?.ToString()).FirstOrDefault();
+                
+                if (placaRede == null) continue;
 
                 var placa = new Placa();
                 placa.Nome = adapter.Interface.FriendlyName;
