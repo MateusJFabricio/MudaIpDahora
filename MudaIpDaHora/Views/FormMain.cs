@@ -55,7 +55,7 @@ namespace MudaIpDahora.Views
         public FormMain()
         {
             InitializeComponent();
-            iniFile = new IniFile("ips_v2");
+            iniFile = new IniFile("ips_v2.ini");
 
             WidthExpanded = Width;
             ConfiguraForm();
