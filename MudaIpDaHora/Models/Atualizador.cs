@@ -186,8 +186,14 @@ namespace MudaIpDahora.Models
                 Log.Enqueue(new Log { StepName = "IniciarInstalador", Text = "Inicio" });
                 Process process = new Process
                 {
-                    StartInfo = new ProcessStartInfo(nomeDownload)
+                    StartInfo = new ProcessStartInfo
+                        { 
+                            FileName = nomeDownload,
+                            UseShellExecute = true,
+                            Verb = "runas"
+                        }
                 };
+
                 Log.Enqueue(new Log { StepName = "IniciarInstalador", Text = "Start do processo " + nomeDownload });
                 process.Start();
                 return true;

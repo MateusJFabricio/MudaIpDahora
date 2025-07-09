@@ -1,4 +1,8 @@
 ﻿using IWshRuntimeLibrary;
+using MudaIpDahora.Models;
+using Newtonsoft.Json.Linq;
+using SharpPcap;
+using SharpPcap.LibPcap;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -6,16 +10,12 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Security.Cryptography;
-using System.Text;
-using System.Windows.Forms;
-using MudaIpDahora.Models;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
-using SharpPcap.LibPcap;
-using SharpPcap;
-using System.Threading;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace MudaIpDahora.Views
 {
@@ -31,6 +31,7 @@ namespace MudaIpDahora.Views
         private IniFile iniFile;
         private string nomeDownload;
         private bool dhcpComponente = false;
+        private IPScanner IPScanner = new IPScanner();
         public bool DhcpComponente
         {
             get
@@ -76,11 +77,15 @@ namespace MudaIpDahora.Views
             notifyIcon.ContextMenu = this.contextMenu;
             atualizador.NovaVersaoEncontradaEvent += Atualizador_NovaVersaoEncontradaEvent;
             atualizador.NovaVersaoEncontradaAsync();
-        }
 
+            //IPScanner
+            IPScanner.OnFinish += IPScanner_OnFinish;
+            IPScanner.ONIPFound += IPScanner_ONIPFound;
+            IPScanner.OnProgressChanged += IPScanner_OnProgressChanged;
+        }
         private void Atualizador_NovaVersaoEncontradaEvent(object sender, EventArgs e)
         {
-            if (MessageBox.Show("Há uma nova versão deste software disponivel. Gostaria de fazer o download?", "Mensagem", 
+            if (MessageBox.Show("Há uma nova versão deste software disponivel. Gostaria de fazer o download?", "Mensagem",
                 MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
             {
                 btnAtualizacao_Click(sender, e);
@@ -163,7 +168,7 @@ namespace MudaIpDahora.Views
                 MessageBox.Show("Trap: " + Environment.NewLine + ex.Message);
                 throw;
             }
-            
+
         }
         private void menuItem_Click(object Sender, EventArgs e)
         {
@@ -180,12 +185,12 @@ namespace MudaIpDahora.Views
                 .Cast<LibPcapLiveDevice>()
                 .Where((x) => x.Interface.Addresses.Count > 0 && x.Loopback == false)
                 .ToList();
-            
+
 
             foreach (var adapter in adapters)
             {
                 var placaRede = NetworkInterface.GetAllNetworkInterfaces().Where((x) => x.GetPhysicalAddress().ToString() == adapter.Interface?.MacAddress?.ToString()).FirstOrDefault();
-                
+
                 if (placaRede == null) continue;
 
                 var placa = new Placa();
@@ -353,10 +358,10 @@ namespace MudaIpDahora.Views
             else
             {
                 e.Cancel = true;
-                var form = new FormAtualizacao(true);
-                form.AtualizacaoProcess.Join();
-                if (form.ShortcutPath != "")
-                    notifyIcon.ShowBalloonTip(2000, "Muda Ip DaHora", "Há uma nova versão disponivel. Atualize já o software =)", ToolTipIcon.Info);
+                //var form = new FormAtualizacao(true);
+                //form.AtualizacaoProcess.Join();
+                //if (form.ShortcutPath != "")
+                //    notifyIcon.ShowBalloonTip(2000, "Muda Ip DaHora", "Há uma nova versão disponivel. Atualize já o software =)", ToolTipIcon.Info);
             }
         }
 
@@ -769,7 +774,7 @@ namespace MudaIpDahora.Views
                     }
                 }
             }
-            
+
         }
 
         private void btnRebootApp_Click(object sender, EventArgs e)
@@ -785,7 +790,8 @@ namespace MudaIpDahora.Views
                     Process.GetCurrentProcess().Kill();
                 }
             }
-            catch{
+            catch
+            {
 
             }
         }
@@ -796,6 +802,64 @@ namespace MudaIpDahora.Views
             {
                 var str = String.Format("{0} {1}", dev.Name, dev.Description);
             }
+        }
+
+        private void btnStart_Click(object sender, EventArgs e)
+        {
+            int timeOut;
+            if (!int.TryParse(txtTimeout.Text, out timeOut))
+            {
+                MessageBox.Show("Time out invalido");
+                return;
+            }
+
+            if(timeOut <= 100)
+            {
+                MessageBox.Show("Time out abaixo de 100 ms");
+                return;
+            }
+
+            IPAddress ip;
+            if (IPAddress.TryParse(txtScannerIp1.Text + "." + txtScannerIp2.Text + "." + txtScannerIp3.Text + ".0", out ip))
+            {
+                btnStartScanner.Enabled = false;
+                listBoxScanner.Items.Clear();
+                IPScanner.Scan(ip, timeOut);
+            }
+            else
+            {
+                MessageBox.Show("IP Invalido");
+                return;
+            }
+            
+        }
+        private void IPScanner_ONIPFound(string ip, int index)
+        {
+            Invoke(new MethodInvoker(() =>
+            {
+                listBoxScanner.Items.Add(ip);
+            }));
+        }
+
+        private void IPScanner_OnFinish()
+        {
+            Invoke(new MethodInvoker(() =>
+            {
+                btnStartScanner.Enabled = true;
+                listBoxScanner.Items.Add("Finalizado");
+            }));
+        }
+        private void IPScanner_OnProgressChanged(int progress)
+        {
+            Invoke(new MethodInvoker(() =>
+            {
+                progressBarScanner.Value = progress;
+            }));
+        }
+
+        private void localizarConfigToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Process.Start("explorer.exe", Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "mudaipdahora"));
         }
     }
 
@@ -833,12 +897,13 @@ namespace MudaIpDahora.Views
                 if (valor.Contains("."))
                 {
                     retorno[i] = valor.Substring(0, valor.IndexOf("."));
-                }else
+                }
+                else
                 {
                     retorno[i] = valor.Substring(0, valor.Length);
                     break;
                 }
-                    
+
 
                 tamanho = valor.Length - (retorno[i] + 1).Length;
 

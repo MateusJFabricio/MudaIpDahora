@@ -7,8 +7,8 @@ namespace MudaIpDahora.Models
 {
     public class IniFile   // revision 11
     {
-        string Path;
-        string Directory = Environment.CurrentDirectory;
+        string FilePath;
+        string Directory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "mudaipdahora");
 
         [DllImport("kernel32", CharSet = CharSet.Unicode)]
         static extern long WritePrivateProfileString(string Section, string Key, string Value, string FilePath);
@@ -18,11 +18,11 @@ namespace MudaIpDahora.Models
 
         public IniFile(string fileName = null)
         {
-            Path = Directory + "\\" + fileName;
+            FilePath = Directory + "\\" + fileName;
             System.IO.Directory.CreateDirectory(Directory);
-            if (!File.Exists(Path))
+            if (!File.Exists(FilePath))
             {
-                var f = File.Create(Path);
+                var f = File.Create(FilePath);
                 f.Close();
             }
         }
@@ -30,13 +30,13 @@ namespace MudaIpDahora.Models
         public string Read(string Key, string Section = null)
         {
             var RetVal = new StringBuilder(255);
-            GetPrivateProfileString(Section ?? Directory, Key, "", RetVal, 255, Path);
+            GetPrivateProfileString(Section ?? Directory, Key, "", RetVal, 255, FilePath);
             return RetVal.ToString();
         }
 
         public void Write(string Key, string Value, string Section = null)
         {
-            WritePrivateProfileString(Section ?? Directory, Key, Value, Path);
+            WritePrivateProfileString(Section ?? Directory, Key, Value, FilePath);
         }
 
         public void DeleteKey(string Key, string Section = null)
